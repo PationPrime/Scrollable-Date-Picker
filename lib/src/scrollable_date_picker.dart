@@ -27,31 +27,40 @@ class ScrollableDatePicker extends StatefulWidget {
   final bool showMonthTitle;
 
   /// Weekday name text style
-  final TextStyle? weekendDaysNameTextStyle;
-
-  /// Weeken day name text style
   final TextStyle? weekdaysNameTextStyle;
 
+  /// Weekend day name text style
+  final TextStyle weekendDaysNameTextStyle;
+
   /// Weekend day numbers text style
-  final TextStyle? weekendDaysTextStyle;
+  final TextStyle weekendDaysTextStyle;
 
   /// Current day [DateTime.now().day] text style
-  final TextStyle? currentDateTextStyle;
+  final TextStyle currentDateTextStyle;
 
   /// Month day text style
   final TextStyle? dayNumberTextStyle;
 
+  /// Previous month days text style
+  final TextStyle? previousMonthDayNumberTextStyle;
+
+  /// Next month days text style
+  final TextStyle? nextMonthDayNumberTextStyle;
+
   /// Month name text style
   final TextStyle? monthNameTextStyle;
+
+  /// Future days (days after [DateTime.now()]) text style
+  final TextStyle futureDatesTextStyle;
 
   /// Range selection color
   final Color selectionColor;
 
-  /// Start date selection color
-  final Color startDateColor;
+  /// Start date selection decoration
+  final SelectionDecorationModel startDateSelectionDecoration;
 
-  /// End date selection color
-  final Color endDateColor;
+  /// End date selection decoration
+  final SelectionDecorationModel endDateSelectionDecoration;
 
   /// Flag to controll which dates should be displayed.
   /// If value is [true], displayes dates only between [minDate] and [maxDate],
@@ -80,11 +89,29 @@ class ScrollableDatePicker extends StatefulWidget {
     DateRangeModel?,
   )? onDateSelect;
 
+  /// Scroll controller
   final ScrollController? scrollController;
 
+  /// Scroll direction. Platform specific physics by default
   final ScrollPhysics? scrollPhysics;
 
+  ///If non-null, forces the children to have the given extent in the scroll  direction.
+  final double? itemExtent;
+
+  /// Scroll direction. Set as [Axis.vertical] by default
   final Axis scrollDirection;
+
+  /// Flag to display previous month days
+  final bool showPreviousMonthDays;
+
+  /// Flag to display next month days
+  final bool showNextMonthDays;
+
+  /// Value to format date inside month title
+  final DateFormat? monthViewDateFormat;
+
+  /// Flag to controll interaction with dates after [DateTime.now()]
+  final bool futureDatesAreAvailable;
 
   ScrollableDatePicker({
     super.key,
@@ -105,10 +132,13 @@ class ScrollableDatePicker extends StatefulWidget {
       color: Colors.redAccent,
     ),
     this.dayNumberTextStyle,
+    this.previousMonthDayNumberTextStyle,
+    this.nextMonthDayNumberTextStyle,
     this.monthNameTextStyle,
+    this.futureDatesTextStyle = const TextStyle(color: Colors.grey),
     this.selectionColor = const Color.fromRGBO(63, 184, 175, 0.7),
-    this.startDateColor = const Color(0xFF3FB8AF),
-    this.endDateColor = const Color(0xFF3FB8AF),
+    this.startDateSelectionDecoration = const SelectionDecorationModel(),
+    this.endDateSelectionDecoration = const SelectionDecorationModel(),
     this.showDatesOnlyBetweenMinAndMax = false,
     this.localeName,
     this.dateSelectionType = DateSelectionType.singleDate,
@@ -118,7 +148,12 @@ class ScrollableDatePicker extends StatefulWidget {
     this.onDateSelect,
     this.scrollController,
     this.scrollPhysics,
+    this.itemExtent,
     this.scrollDirection = Axis.vertical,
+    this.showPreviousMonthDays = false,
+    this.showNextMonthDays = false,
+    this.monthViewDateFormat,
+    this.futureDatesAreAvailable = false,
   })  : assert(
           minDate.isBefore(maxDate),
           "Minimum date cannot be after maximum date",
@@ -146,8 +181,8 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
   late final ScrollController _scrollController;
   late List<DateTime> _dates;
   late int _monthCount;
-  DateTime? _selectedSingleDate;
   DateTime? _initialDate;
+  DateTime? _selectedSingleDate;
   DateRangeModel? _dateRange;
   late final List<DateTime> _selectedDates;
 
@@ -298,7 +333,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
   }
 
   void _initScrollController() {
-    _scrollController = ScrollController();
+    _scrollController = widget.scrollController ?? ScrollController();
   }
 
   void _init() {
@@ -314,6 +349,15 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     );
   }
 
+  void _clearDates() {
+    setState(() {
+      _selectedSingleDate = null;
+      _dateRange = null;
+      _selectedDates.clear();
+      widget.onDateSelect?.call(null, null, null);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -327,7 +371,16 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
   }
 
   @override
+  void didUpdateWidget(covariant ScrollableDatePicker oldWidget) {
+    if (oldWidget.dateSelectionType != widget.dateSelectionType) {
+      _clearDates();
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) => ListView.builder(
+        itemExtent: widget.itemExtent,
         controller: _scrollController,
         scrollDirection: widget.scrollDirection,
         physics: widget.scrollPhysics,
@@ -343,9 +396,11 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
                     onTap: () => _onMonthTitleTap(
                       _dates[index],
                     ),
-                    title: DateFormat(
-                      "MMMM${_dates[index].year != _dateTimeNow.year ? ", ${_dates[index].year}" : ""}",
-                    ).format(_dates[index]),
+                    title: widget.monthViewDateFormat?.format(_dates[index]) ??
+                        DateFormat(
+                          "MMMM${_dates[index].year != _dateTimeNow.year ? ", ${_dates[index].year}" : ""}",
+                        ).format(_dates[index]),
+                    textStyle: widget.monthNameTextStyle,
                   ),
                 ),
               DaysViewLeafRenderObjectWidget(
@@ -363,19 +418,27 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
                     _dateRange!.endDate!.isAfter(_dates[index]),
                 showWeekdays: widget.showWeekdays,
                 selectionColor: widget.selectionColor,
-                startDateColor: widget.startDateColor,
-                endDateColor: widget.endDateColor,
+                startDateSelectionDecoration:
+                    widget.startDateSelectionDecoration,
+                endDateSelectionDecoration: widget.endDateSelectionDecoration,
                 weekdaysNameTextStyle: widget.weekdaysNameTextStyle,
                 weekendDaysTextStyle: widget.weekendDaysTextStyle,
                 weekendDaysNameTextStyle: widget.weekendDaysNameTextStyle,
                 currentDateTextStyle: widget.currentDateTextStyle,
+                futureDatesTextStyle: widget.futureDatesTextStyle,
                 dayNumberTextStyle: widget.dayNumberTextStyle,
+                previousMonthDayNumberTextStyle:
+                    widget.previousMonthDayNumberTextStyle,
+                nextMonthDayNumberTextStyle: widget.nextMonthDayNumberTextStyle,
                 onDateSelect: _onDateSelect,
                 localeName: widget.localeName,
                 dateSelectionType: widget.dateSelectionType,
                 selectedSingleDate: _selectedSingleDate,
                 selectedDates: _selectedDates,
                 dateRange: _dateRange,
+                showPreviousMonthDays: widget.showPreviousMonthDays,
+                showNextMonthDays: widget.showNextMonthDays,
+                futureDatesAreAvailable: widget.futureDatesAreAvailable,
               ),
             ],
           ),

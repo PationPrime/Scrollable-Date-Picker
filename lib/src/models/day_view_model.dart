@@ -6,26 +6,30 @@ import 'package:flutter/painting.dart';
 @immutable
 class DayViewModel {
   final int number;
-  final Offset? center;
+  final Offset? selectionCenter;
+  final Offset? dayCenter;
   final Rect? rect;
   final DateTime? date;
 
   const DayViewModel({
     required this.number,
-    this.center,
+    this.selectionCenter,
+    this.dayCenter,
     this.rect,
     this.date,
   });
 
   DayViewModel copyWith({
     int? number,
-    Offset? center,
+    Offset? selectionCenter,
+    Offset? dayCenter,
     Rect? rect,
     DateTime? date,
   }) =>
       DayViewModel(
         number: number ?? this.number,
-        center: center ?? this.center,
+        selectionCenter: selectionCenter ?? this.selectionCenter,
+        dayCenter: dayCenter ?? this.dayCenter,
         rect: rect ?? this.rect,
         date: date ?? this.date,
       );
@@ -35,19 +39,21 @@ class DayViewModel {
       other is DayViewModel &&
       other.runtimeType == runtimeType &&
       other.number == number &&
-      other.center == center &&
+      other.selectionCenter == selectionCenter &&
+      other.dayCenter == dayCenter &&
       other.rect == rect &&
       other.date == date;
 
   @override
   int get hashCode => Object.hash(
         number,
-        center,
+        selectionCenter,
+        dayCenter,
         rect,
         date,
       );
 
   @override
   String toString() =>
-      "hashCode: $hashCode, number: $number, ceneter: $center, rect: $rect, date: $date";
+      "hashCode: $hashCode, number: $number, paintCenter: $selectionCenter, dayCenter: $dayCenter, rect: $rect, date: $date";
 }

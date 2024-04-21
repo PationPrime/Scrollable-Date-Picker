@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:scrollable_date_picker/scrollable_date_picker.dart';
 
@@ -7,8 +5,23 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final _singleDateSelectionDecoration = const SelectionDecorationModel(
+    topLeftCorner: Radius.circular(12),
+    topRightCorner: Radius.circular(12),
+    bottomLeftCorner: Radius.circular(12),
+    bottomRightCorner: Radius.circular(12),
+    shape: BoxShape.circle,
+    width: 15,
+    color: Color.fromRGBO(63, 184, 175, 1),
+  );
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -19,21 +32,23 @@ class MyApp extends StatelessWidget {
         ),
         home: Scaffold(
           backgroundColor: Colors.brown,
-          body: ScrollableDatePicker(
-            minDate: DateTime(2022, 2, 1),
-            maxDate: DateTime(2024),
-            onDateSelect: (
-              singleDate,
-              dates,
-              dateRange,
-            ) {
-              log("singleDate: $singleDate");
-              log("dates: $dates");
-              log(
-                "dateRange startDate: ${dateRange?.startDate}, dateRange endDate: ${dateRange?.endDate}",
-              );
-            },
-            dateSelectionType: DateSelectionType.singleDate,
+          body: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                top: 10,
+                left: 10,
+                right: 10,
+              ),
+              child: ScrollableDatePicker(
+                minDate: DateTime(2022, 2, 1),
+                maxDate: DateTime(2024),
+                onDateSelect: (singleDate, dates, dateRange) {},
+                startDateSelectionDecoration: _singleDateSelectionDecoration,
+                endDateSelectionDecoration: _singleDateSelectionDecoration,
+                dateSelectionType: DateSelectionType.multiDates,
+              ),
+            ),
           ),
         ),
       );

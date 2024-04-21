@@ -85,48 +85,78 @@ class DaysViewRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
-  Color? _startDateColor;
-  Color? get startDateColor => _startDateColor;
+  late SelectionDecorationModel _startDateSelectionDecoration;
+  SelectionDecorationModel get startDateSelectionDecoration =>
+      _startDateSelectionDecoration;
 
-  set startDateColor(Color? color) {
-    if (_startDateColor == color) return;
-    _startDateColor = color;
+  set startDateSelectionDecoration(SelectionDecorationModel decoration) {
+    if (_startDateSelectionDecoration == decoration) return;
+    _startDateSelectionDecoration = decoration;
     markNeedsPaint();
   }
 
-  Color? _endDateColor;
-  Color? get endDateColor => _endDateColor;
+  late SelectionDecorationModel _endDateSelectionDecoration;
+  SelectionDecorationModel get endDateSelectionDecoration =>
+      _endDateSelectionDecoration;
 
-  set endDateColor(Color? color) {
-    if (_endDateColor == color) return;
-    _endDateColor = color;
+  set endDateSelectionDecoration(SelectionDecorationModel decoration) {
+    if (_endDateSelectionDecoration == decoration) return;
+    _endDateSelectionDecoration = decoration;
     markNeedsPaint();
   }
 
-  TextStyle? _currentDateTextStyle;
-  TextStyle? get currentDateTextStyle => _currentDateTextStyle;
+  late TextStyle _currentDateTextStyle;
+  TextStyle get currentDateTextStyle => _currentDateTextStyle;
 
-  set currentDateTextStyle(TextStyle? style) {
+  set currentDateTextStyle(TextStyle style) {
     if (_currentDateTextStyle == style) return;
     _currentDateTextStyle = style;
     markNeedsPaint();
   }
 
-  TextStyle? _weekendDaysTextStyle;
-  TextStyle? get weekendDaysTextStyle => _weekendDaysTextStyle;
+  late TextStyle _futureDatesTextStyle;
+  TextStyle get futureDatesTextStyle => _futureDatesTextStyle;
 
-  set weekendDaysTextStyle(TextStyle? style) {
+  set futureDatesTextStyle(TextStyle style) {
+    if (_futureDatesTextStyle == style) return;
+    _futureDatesTextStyle = style;
+    markNeedsPaint();
+  }
+
+  late TextStyle _weekendDaysTextStyle;
+  TextStyle get weekendDaysTextStyle => _weekendDaysTextStyle;
+
+  set weekendDaysTextStyle(TextStyle style) {
     if (_weekendDaysTextStyle == style) return;
     _weekendDaysTextStyle = style;
     markNeedsPaint();
   }
 
-  TextStyle? _weekendDaysNameTextStyle;
-  TextStyle? get weekendDaysNameTextStyle => _weekendDaysNameTextStyle;
+  late TextStyle _weekendDaysNameTextStyle;
+  TextStyle get weekendDaysNameTextStyle => _weekendDaysNameTextStyle;
 
-  set weekendDaysNameTextStyle(TextStyle? style) {
+  set weekendDaysNameTextStyle(TextStyle style) {
     if (_weekendDaysNameTextStyle == style) return;
     _weekendDaysNameTextStyle = style;
+    markNeedsPaint();
+  }
+
+  TextStyle? _previousMonthDayNumberTextStyle;
+  TextStyle? get previousMonthDayNumberTextStyle =>
+      _previousMonthDayNumberTextStyle;
+
+  set previousMonthDayNumberTextStyle(TextStyle? style) {
+    if (_previousMonthDayNumberTextStyle == style) return;
+    _previousMonthDayNumberTextStyle = style;
+    markNeedsPaint();
+  }
+
+  TextStyle? _nextMonthDayNumberTextStyle;
+  TextStyle? get nextMonthDayNumberTextStyle => _nextMonthDayNumberTextStyle;
+
+  set nextMonthDayNumberTextStyle(TextStyle? style) {
+    if (_nextMonthDayNumberTextStyle == style) return;
+    _nextMonthDayNumberTextStyle = style;
     markNeedsPaint();
   }
 
@@ -193,7 +223,7 @@ class DaysViewRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
-  DateSelectionType _dateSelectionType = DateSelectionType.singleDate;
+  late DateSelectionType _dateSelectionType;
   DateSelectionType get dateSelectionType => _dateSelectionType;
 
   set dateSelectionType(DateSelectionType selectionType) {
@@ -228,10 +258,39 @@ class DaysViewRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
+  late bool _showPreviousMonthDays;
+  bool get showPreviousMonthDays => _showPreviousMonthDays;
+
+  set showPreviousMonthDays(bool value) {
+    if (_showPreviousMonthDays == value) return;
+    _showPreviousMonthDays = value;
+    markNeedsPaint();
+  }
+
+  late bool _showNextMonthDays;
+  bool get showNextMonthDays => _showNextMonthDays;
+
+  set showNextMonthDays(bool value) {
+    if (_showNextMonthDays == value) return;
+    _showNextMonthDays = value;
+    markNeedsPaint();
+  }
+
+  late bool _futureDatesAreAvailable;
+  bool get futureDatesAreAvailable => _futureDatesAreAvailable;
+
+  set futureDatesAreAvailable(bool value) {
+    if (_futureDatesAreAvailable == value) return;
+    _futureDatesAreAvailable = value;
+    markNeedsPaint();
+  }
+
   void _onDateTap(DayViewModel tappedDay) {
     final date = viewDate.copyWith(
       day: tappedDay.number,
     );
+
+    if (!futureDatesAreAvailable && date.isAfter(_dateTimeNow)) return;
 
     _onDateSelect?.call(date);
   }
@@ -249,19 +308,24 @@ class DaysViewRenderBox extends RenderBox {
     required bool showWeekdays,
     TextStyle? weekdayTextStyle,
     TextStyle? dayNumberTextStyle,
-    TextStyle? weekendDaysTextStyle,
-    TextStyle? weekendDaysNameTextStyle,
-    TextStyle? currentDateTextStyle,
+    required TextStyle weekendDaysTextStyle,
+    required TextStyle weekendDaysNameTextStyle,
+    required TextStyle currentDateTextStyle,
+    required TextStyle futureDatesTextStyle,
+    TextStyle? previousMonthDayNumberTextStyle,
+    TextStyle? nextMonthDayNumberTextStyle,
     Color? selectionColor,
-    Color? startDateColor,
-    Color? endDateColor,
-    TextStyle? currentDateColor,
+    required SelectionDecorationModel startDateSelectionDecoration,
+    required SelectionDecorationModel endDateSelectionDecoration,
     String? localeName,
     required DateSelectionType dateSelectionType,
     DateTime? selectedSingleDate,
     List<DateTime>? selectedDates,
     DateRangeModel? dateRange,
     void Function(DateTime?)? onDateSelect,
+    required bool showPreviousMonthDays,
+    required bool showNextMonthDays,
+    required bool futureDatesAreAvailable,
   })  : _startWeekday = startWeekday,
         _daysCount = daysCount,
         _viewDate = viewDate,
@@ -269,18 +333,24 @@ class DaysViewRenderBox extends RenderBox {
         _showWeekdays = showWeekdays,
         _weekdayTextStyle = weekdayTextStyle,
         _selectionColor = selectionColor,
-        _startDateColor = startDateColor,
-        _endDateColor = endDateColor,
+        _startDateSelectionDecoration = startDateSelectionDecoration,
+        _endDateSelectionDecoration = endDateSelectionDecoration,
         _dayNumberTextStyle = dayNumberTextStyle,
         _weekendDaysTextStyle = weekendDaysTextStyle,
         _weekendDaysNameTextStyle = weekendDaysNameTextStyle,
-        _currentDateTextStyle = currentDateColor,
+        _currentDateTextStyle = currentDateTextStyle,
+        _futureDatesTextStyle = futureDatesTextStyle,
+        _previousMonthDayNumberTextStyle = previousMonthDayNumberTextStyle,
+        _nextMonthDayNumberTextStyle = nextMonthDayNumberTextStyle,
         _localeName = localeName,
         _dateSelectionType = dateSelectionType,
         _selectedSingleDate = selectedSingleDate,
         _selectedDates = selectedDates,
         _dateRange = dateRange,
-        _onDateSelect = onDateSelect {
+        _onDateSelect = onDateSelect,
+        _showPreviousMonthDays = showPreviousMonthDays,
+        _showNextMonthDays = showNextMonthDays,
+        _futureDatesAreAvailable = futureDatesAreAvailable {
     _generateDays();
     _initGestures();
   }
@@ -361,9 +431,10 @@ class DaysViewRenderBox extends RenderBox {
       _days.insert(
         day.number - 1,
         day.copyWith(
-          center: dayCenter,
+          selectionCenter: position,
+          dayCenter: dayCenter,
           rect: Rect.fromCenter(
-            center: dayCenter,
+            center: position,
             width: dayStepDX,
             height: dayStepDY,
           ),
@@ -448,78 +519,198 @@ class DaysViewRenderBox extends RenderBox {
             ? currentDateTextStyle
             : day.date?.weekday == 6 || day.date?.weekday == 7
                 ? weekendDaysTextStyle
-                : null,
+                : !futureDatesAreAvailable && day.date!.isAfter(_dateTimeNow)
+                    ? futureDatesTextStyle
+                    : null,
       );
 
       painter.layout();
 
       painter.paint(
         canvas,
-        day.center!,
+        day.dayCenter!,
       );
     }
   }
 
-  void _drawSingleSelection(
+  void _drawSingleRectSelection(
     Canvas canvas,
-    Rect rect, {
-    Color? color,
-  }) =>
-      canvas.drawRect(
+    DayViewModel day, {
+    SelectionDecorationModel? decoration,
+  }) {
+    Rect? rect = day.rect;
+
+    if (rect is! Rect) {
+      return;
+    }
+
+    if (decoration?.height is double) {
+      rect = Rect.fromCenter(
+        center: Offset(
+          day.selectionCenter!.dx,
+          day.selectionCenter!.dy,
+        ),
+        width: size.width / 7,
+        height: decoration!.height!.clamp(
+          0,
+          _desiredHeight / rowsCount,
+        ),
+      );
+    }
+
+    canvas.drawRRect(
+      RRect.fromRectAndCorners(
         rect,
-        Paint()..color = color ?? startDateColor ?? endDateColor ?? Colors.blue,
+        topLeft: decoration?.topLeftCorner ?? Radius.zero,
+        topRight: decoration?.topRightCorner ?? Radius.zero,
+        bottomLeft: decoration?.bottomLeftCorner ?? Radius.zero,
+        bottomRight: decoration?.bottomRightCorner ?? Radius.zero,
+      ),
+      Paint()..color = decoration?.color ?? startDateSelectionDecoration.color,
+    );
+  }
+
+  void _drawSingleCircleSelection(
+    Canvas canvas,
+    Offset center, {
+    SelectionDecorationModel? decoration,
+  }) =>
+      canvas.drawCircle(
+        center,
+        decoration?.width ??
+            startDateSelectionDecoration.width ??
+            size.width / 14,
+        Paint()
+          ..color = decoration?.color ?? startDateSelectionDecoration.color,
       );
 
-  void _paintSingleSelection(Canvas canvas, {DateTime? date}) {
-    Rect? dayRect;
+  void _paintSingleRectSelection(
+    Canvas canvas, {
+    DateTime? date,
+    SelectionDecorationModel? decoration,
+  }) {
+    DayViewModel? dayModel;
 
     if (date is! DateTime) {
       date = _selectedSingleDate;
     }
 
     try {
-      dayRect = _days.firstWhere((day) => day.date == date).rect;
+      dayModel = _days.firstWhere((day) => day.date == date);
     } catch (_) {
-      dayRect = null;
+      dayModel = null;
     }
 
-    if (dayRect is Rect) {
-      _drawSingleSelection(
-        canvas,
-        dayRect,
-      );
+    if (dayModel is! DayViewModel) {
+      return;
+    }
+
+    _drawSingleRectSelection(
+      canvas,
+      dayModel,
+      decoration: decoration,
+    );
+  }
+
+  void _paintSingleCircleSelection(
+    Canvas canvas, {
+    DateTime? date,
+    SelectionDecorationModel? decoration,
+  }) {
+    Offset? center;
+
+    if (date is! DateTime) {
+      date = _selectedSingleDate;
+    }
+
+    try {
+      center = _days.firstWhere((day) => day.date == date).selectionCenter;
+    } catch (_) {
+      center = null;
+    }
+
+    if (center is! Offset) {
+      return;
+    }
+
+    _drawSingleCircleSelection(
+      canvas,
+      center,
+      decoration: decoration,
+    );
+  }
+
+  void _paintSingleSelection(
+    Canvas canvas, {
+    DateTime? date,
+    SelectionDecorationModel? decoration,
+  }) {
+    switch (startDateSelectionDecoration.shape) {
+      case BoxShape.rectangle:
+        _paintSingleRectSelection(
+          canvas,
+          date: date,
+          decoration: decoration,
+        );
+
+      case BoxShape.circle:
+        _paintSingleCircleSelection(
+          canvas,
+          date: date,
+          decoration: decoration,
+        );
     }
   }
 
   void _paintRangeSelection(Canvas canvas) {
-    Rect? startDayRect;
-    Rect? endDayRect;
-
-    try {
-      startDayRect =
-          _days.firstWhere((day) => day.date == _dateRange?.startDate).rect;
-    } catch (_) {
-      startDayRect = null;
+    if (dateRange?.startDate is! DateTime) {
+      return;
     }
 
-    try {
-      endDayRect =
-          _days.firstWhere((day) => day.date == _dateRange?.endDate).rect;
-    } catch (_) {
-      endDayRect = null;
+    _paintSingleSelection(
+      canvas,
+      date: dateRange?.startDate,
+      decoration: startDateSelectionDecoration,
+    );
+
+    if (dateRange?.endDate is! DateTime) {
+      return;
     }
 
-    if (startDayRect is Rect) {
-      _drawSingleSelection(
+    _paintSingleSelection(
+      canvas,
+      date: dateRange?.endDate,
+      decoration: endDateSelectionDecoration,
+    );
+
+    _paintSelectionBetweenDateRange(canvas);
+  }
+
+  void _paintSelectionBetweenDateRange(Canvas canvas) {
+    final daysInRange = _days.where((day) =>
+        day.date!.isAfter(dateRange!.startDate!) &&
+        day.date!.isBefore(dateRange!.endDate!));
+
+    for (final day in daysInRange) {
+      _drawSingleRectSelection(
         canvas,
-        startDayRect,
-      );
-    }
-
-    if (endDayRect is Rect) {
-      _drawSingleSelection(
-        canvas,
-        endDayRect,
+        day,
+        decoration: SelectionDecorationModel(
+          color: selectionColor ?? startDateSelectionDecoration.color,
+          height: 30,
+          topLeftCorner: day.date!.weekday == 1 || day == daysInRange.first
+              ? const Radius.circular(12)
+              : Radius.zero,
+          bottomLeftCorner: day.date!.weekday == 1 || day == daysInRange.first
+              ? const Radius.circular(12)
+              : Radius.zero,
+          topRightCorner: day.date!.weekday == 7 || day == daysInRange.last
+              ? const Radius.circular(12)
+              : Radius.zero,
+          bottomRightCorner: day.date!.weekday == 7 || day == daysInRange.last
+              ? const Radius.circular(12)
+              : Radius.zero,
+        ),
       );
     }
   }
