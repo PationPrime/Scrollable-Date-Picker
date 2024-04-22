@@ -76,32 +76,23 @@ class DaysViewRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
-  Color? _selectionColor;
-  Color? get selectionColor => _selectionColor;
+  late SingleSelectionDecoration _singleSelectionDecoration;
+  SingleSelectionDecoration get singleSelectionDecoration =>
+      _singleSelectionDecoration;
 
-  set selectionColor(Color? color) {
-    if (_selectionColor == color) return;
-    _selectionColor = color;
+  set singleSelectionDecoration(SingleSelectionDecoration decoration) {
+    if (_singleSelectionDecoration == decoration) return;
+    _singleSelectionDecoration = decoration;
     markNeedsPaint();
   }
 
-  late SelectionDecorationModel _startDateSelectionDecoration;
-  SelectionDecorationModel get startDateSelectionDecoration =>
-      _startDateSelectionDecoration;
+  late RangeSelectionDecoration _rangeSelectionDecoration;
+  RangeSelectionDecoration get rangeSelectionDecoration =>
+      _rangeSelectionDecoration;
 
-  set startDateSelectionDecoration(SelectionDecorationModel decoration) {
-    if (_startDateSelectionDecoration == decoration) return;
-    _startDateSelectionDecoration = decoration;
-    markNeedsPaint();
-  }
-
-  late SelectionDecorationModel _endDateSelectionDecoration;
-  SelectionDecorationModel get endDateSelectionDecoration =>
-      _endDateSelectionDecoration;
-
-  set endDateSelectionDecoration(SelectionDecorationModel decoration) {
-    if (_endDateSelectionDecoration == decoration) return;
-    _endDateSelectionDecoration = decoration;
+  set rangeSelectionDecoration(RangeSelectionDecoration decoration) {
+    if (_rangeSelectionDecoration == decoration) return;
+    _rangeSelectionDecoration = decoration;
     markNeedsPaint();
   }
 
@@ -183,17 +174,13 @@ class DaysViewRenderBox extends RenderBox {
     ) {};
 
   DayViewModel? _findTappedDay(TapDownDetails tapDownDetails) {
-    DayViewModel? tappedDay;
-
     try {
-      tappedDay = _days.firstWhere(
+      return _days.firstWhere(
         (day) => day.rect?.contains(tapDownDetails.localPosition) ?? false,
       );
     } catch (e) {
-      tappedDay = null;
+      return null;
     }
-
-    return tappedDay;
   }
 
   void _onTapDown(TapDownDetails tapDownDetails) {
@@ -285,6 +272,15 @@ class DaysViewRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
+  late double _daysRowHeight;
+  double get daysRowHeight => _daysRowHeight;
+
+  set daysRowHeight(double value) {
+    if (_daysRowHeight == value) return;
+    _daysRowHeight = value;
+    markNeedsPaint();
+  }
+
   void _onDateTap(DayViewModel tappedDay) {
     final date = viewDate.copyWith(
       day: tappedDay.number,
@@ -314,9 +310,6 @@ class DaysViewRenderBox extends RenderBox {
     required TextStyle futureDatesTextStyle,
     TextStyle? previousMonthDayNumberTextStyle,
     TextStyle? nextMonthDayNumberTextStyle,
-    Color? selectionColor,
-    required SelectionDecorationModel startDateSelectionDecoration,
-    required SelectionDecorationModel endDateSelectionDecoration,
     String? localeName,
     required DateSelectionType dateSelectionType,
     DateTime? selectedSingleDate,
@@ -326,15 +319,15 @@ class DaysViewRenderBox extends RenderBox {
     required bool showPreviousMonthDays,
     required bool showNextMonthDays,
     required bool futureDatesAreAvailable,
+    required SingleSelectionDecoration singleSelectionDecoration,
+    required RangeSelectionDecoration rangeSelectionDecoration,
+    required double daysRowHeight,
   })  : _startWeekday = startWeekday,
         _daysCount = daysCount,
         _viewDate = viewDate,
         _betweenDates = betweenDates,
         _showWeekdays = showWeekdays,
         _weekdayTextStyle = weekdayTextStyle,
-        _selectionColor = selectionColor,
-        _startDateSelectionDecoration = startDateSelectionDecoration,
-        _endDateSelectionDecoration = endDateSelectionDecoration,
         _dayNumberTextStyle = dayNumberTextStyle,
         _weekendDaysTextStyle = weekendDaysTextStyle,
         _weekendDaysNameTextStyle = weekendDaysNameTextStyle,
@@ -350,7 +343,10 @@ class DaysViewRenderBox extends RenderBox {
         _onDateSelect = onDateSelect,
         _showPreviousMonthDays = showPreviousMonthDays,
         _showNextMonthDays = showNextMonthDays,
-        _futureDatesAreAvailable = futureDatesAreAvailable {
+        _futureDatesAreAvailable = futureDatesAreAvailable,
+        _singleSelectionDecoration = singleSelectionDecoration,
+        _rangeSelectionDecoration = rangeSelectionDecoration,
+        _daysRowHeight = daysRowHeight {
     _generateDays();
     _initGestures();
   }
@@ -374,12 +370,16 @@ class DaysViewRenderBox extends RenderBox {
     }
   }
 
-  static const _minDesiredWidth = 100.0;
+  static const _minDesiredWidth = 0.0;
 
-  int get rowsCount =>
+  int get _rowsCount =>
       ((daysCount + startWeekday - 1) / 7).ceil() + (showWeekdays ? 1 : 0);
 
-  double get _desiredHeight => rowsCount * 40;
+  double get _rowHeight => _desiredHeight / _rowsCount;
+
+  double get _dayCellWidth => size.width / 7;
+
+  double get _desiredHeight => _rowsCount * daysRowHeight;
 
   TextPainter _dayNumberPainer(
     int number, {
@@ -403,8 +403,8 @@ class DaysViewRenderBox extends RenderBox {
   }
 
   void _layoutDays() {
-    final dayStepDX = size.width / 7;
-    final dayStepDY = _desiredHeight / rowsCount;
+    final dayStepDX = _dayCellWidth;
+    final dayStepDY = _rowHeight;
 
     final initialDX = (startWeekday - 1) * dayStepDX + dayStepDX / 2;
     final initialDY = dayStepDY / 2 + (showWeekdays ? dayStepDY : 0);
@@ -471,8 +471,8 @@ class DaysViewRenderBox extends RenderBox {
       return;
     }
 
-    final dayStepDX = size.width / 7;
-    final dayStepDY = _desiredHeight / rowsCount;
+    final dayStepDX = _dayCellWidth;
+    final dayStepDY = _rowHeight;
 
     Offset position = Offset(
       dayStepDX / 2,
@@ -533,10 +533,22 @@ class DaysViewRenderBox extends RenderBox {
     }
   }
 
+  RRect _rectToRRect(
+    Rect rect,
+    SelectionDecoration decoration,
+  ) =>
+      RRect.fromRectAndCorners(
+        rect,
+        topLeft: decoration.borderRadius.topLeft,
+        topRight: decoration.borderRadius.topRight,
+        bottomLeft: decoration.borderRadius.bottomLeft,
+        bottomRight: decoration.borderRadius.bottomRight,
+      );
+
   void _drawSingleRectSelection(
     Canvas canvas,
     DayViewModel day, {
-    SelectionDecorationModel? decoration,
+    SingleSelectionDecoration? decoration,
   }) {
     Rect? rect = day.rect;
 
@@ -550,44 +562,54 @@ class DaysViewRenderBox extends RenderBox {
           day.selectionCenter!.dx,
           day.selectionCenter!.dy,
         ),
-        width: size.width / 7,
+        width: _dayCellWidth,
         height: decoration!.height!.clamp(
           0,
-          _desiredHeight / rowsCount,
+          _rowHeight,
         ),
       );
     }
 
+    decoration ??= singleSelectionDecoration;
+
+    final rRect = _rectToRRect(
+      rect,
+      decoration,
+    );
+
     canvas.drawRRect(
-      RRect.fromRectAndCorners(
-        rect,
-        topLeft: decoration?.topLeftCorner ?? Radius.zero,
-        topRight: decoration?.topRightCorner ?? Radius.zero,
-        bottomLeft: decoration?.bottomLeftCorner ?? Radius.zero,
-        bottomRight: decoration?.bottomRightCorner ?? Radius.zero,
-      ),
-      Paint()..color = decoration?.color ?? startDateSelectionDecoration.color,
+      rRect,
+      Paint()..color = decoration.color,
     );
   }
 
   void _drawSingleCircleSelection(
     Canvas canvas,
     Offset center, {
-    SelectionDecorationModel? decoration,
-  }) =>
-      canvas.drawCircle(
-        center,
-        decoration?.width ??
-            startDateSelectionDecoration.width ??
-            size.width / 14,
-        Paint()
-          ..color = decoration?.color ?? startDateSelectionDecoration.color,
-      );
+    SingleSelectionDecoration? decoration,
+  }) {
+    decoration ??= singleSelectionDecoration;
+    final radius = (decoration.width ??
+            decoration.height ??
+            singleSelectionDecoration.width ??
+            singleSelectionDecoration.height ??
+            _desiredHeight / (_rowsCount - 1))
+        .clamp(
+      0.0,
+      _desiredHeight / (_rowsCount - 1),
+    );
+
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()..color = decoration.color,
+    );
+  }
 
   void _paintSingleRectSelection(
     Canvas canvas, {
     DateTime? date,
-    SelectionDecorationModel? decoration,
+    SingleSelectionDecoration? decoration,
   }) {
     DayViewModel? dayModel;
 
@@ -615,7 +637,7 @@ class DaysViewRenderBox extends RenderBox {
   void _paintSingleCircleSelection(
     Canvas canvas, {
     DateTime? date,
-    SelectionDecorationModel? decoration,
+    SingleSelectionDecoration? decoration,
   }) {
     Offset? center;
 
@@ -643,9 +665,9 @@ class DaysViewRenderBox extends RenderBox {
   void _paintSingleSelection(
     Canvas canvas, {
     DateTime? date,
-    SelectionDecorationModel? decoration,
+    SingleSelectionDecoration? decoration,
   }) {
-    switch (startDateSelectionDecoration.shape) {
+    switch (decoration?.shape ?? singleSelectionDecoration.shape) {
       case BoxShape.rectangle:
         _paintSingleRectSelection(
           canvas,
@@ -663,6 +685,12 @@ class DaysViewRenderBox extends RenderBox {
   }
 
   void _paintRangeSelection(Canvas canvas) {
+    if (dateRange?.startDate is DateTime && dateRange?.endDate is DateTime) {
+      _paintSelectionBetweenDateRange(
+        canvas,
+      );
+    }
+
     if (dateRange?.startDate is! DateTime) {
       return;
     }
@@ -670,7 +698,7 @@ class DaysViewRenderBox extends RenderBox {
     _paintSingleSelection(
       canvas,
       date: dateRange?.startDate,
-      decoration: startDateSelectionDecoration,
+      decoration: rangeSelectionDecoration.startDateSelectionDecoration,
     );
 
     if (dateRange?.endDate is! DateTime) {
@@ -680,39 +708,122 @@ class DaysViewRenderBox extends RenderBox {
     _paintSingleSelection(
       canvas,
       date: dateRange?.endDate,
-      decoration: endDateSelectionDecoration,
+      decoration: rangeSelectionDecoration.endDateSelectionDecoration,
     );
+  }
 
-    _paintSelectionBetweenDateRange(canvas);
+  void _paintStartAndLastDateSelectionGap(
+    Canvas canvas,
+    DayViewModel day,
+    List<DayViewModel> daysInRange,
+  ) {
+    if ((day == daysInRange.first &&
+            _days.any((day) => dateRange?.startDate == day.date)) ||
+        day == daysInRange.last &&
+            _days.any((day) => dateRange?.endDate == day.date)) {
+      Rect? firstDayRect;
+
+      final firstDayPath = Path();
+
+      if (day == daysInRange.first || day == daysInRange.last) {
+        if (rangeSelectionDecoration
+                .startDateSelectionDecoration.shape.isCicle ||
+            rangeSelectionDecoration
+                    .startDateSelectionDecoration.borderRadius !=
+                BorderRadius.zero ||
+            rangeSelectionDecoration.endDateSelectionDecoration.shape.isCicle ||
+            rangeSelectionDecoration.endDateSelectionDecoration.borderRadius !=
+                BorderRadius.zero) {
+          firstDayRect = Rect.fromCircle(
+            center: day.selectionCenter!,
+            radius: (day == daysInRange.first
+                    ? rangeSelectionDecoration
+                        .startDateSelectionDecoration.width
+                    : rangeSelectionDecoration
+                        .endDateSelectionDecoration.width) ??
+                size.height / 14,
+          );
+
+          firstDayPath.addOval(
+            firstDayRect,
+          );
+        } else {
+          firstDayPath.addRect(
+            day.rect!,
+          );
+        }
+      }
+
+      final rect = Rect.fromCenter(
+        center: Offset(
+          day.selectionCenter!.dx,
+          day.selectionCenter!.dy,
+        ),
+        width: _dayCellWidth,
+        height: rangeSelectionDecoration.height ?? _rowHeight,
+      );
+
+      final differencePath = Path.combine(
+        PathOperation.reverseDifference,
+        firstDayPath,
+        Path()..addRect(rect),
+      );
+
+      final halfOfDifferencePath = Rect.fromCenter(
+        center: Offset(
+          day.selectionCenter!.dx +
+              (day == daysInRange.first ? -size.width / 28 : size.width / 28),
+          day.selectionCenter!.dy,
+        ),
+        width: size.width / 14,
+        height: rangeSelectionDecoration.height ?? _rowHeight,
+      );
+
+      final gapPath = Path.combine(
+        PathOperation.difference,
+        differencePath,
+        Path()..addRect(halfOfDifferencePath),
+      );
+
+      canvas.drawPath(
+        gapPath,
+        Paint()..color = rangeSelectionDecoration.color,
+      );
+    }
   }
 
   void _paintSelectionBetweenDateRange(Canvas canvas) {
-    final daysInRange = _days.where((day) =>
-        day.date!.isAfter(dateRange!.startDate!) &&
-        day.date!.isBefore(dateRange!.endDate!));
+    final daysInRange = _days.where(
+      (day) =>
+          day.date == dateRange!.startDate ||
+          day.date == dateRange!.endDate ||
+          day.date!.isAfter(dateRange!.startDate!) &&
+              day.date!.isBefore(dateRange!.endDate!),
+    );
+
+    final selectionPath = Path();
 
     for (final day in daysInRange) {
-      _drawSingleRectSelection(
+      _paintStartAndLastDateSelectionGap(
         canvas,
         day,
-        decoration: SelectionDecorationModel(
-          color: selectionColor ?? startDateSelectionDecoration.color,
-          height: 30,
-          topLeftCorner: day.date!.weekday == 1 || day == daysInRange.first
-              ? const Radius.circular(12)
-              : Radius.zero,
-          bottomLeftCorner: day.date!.weekday == 1 || day == daysInRange.first
-              ? const Radius.circular(12)
-              : Radius.zero,
-          topRightCorner: day.date!.weekday == 7 || day == daysInRange.last
-              ? const Radius.circular(12)
-              : Radius.zero,
-          bottomRightCorner: day.date!.weekday == 7 || day == daysInRange.last
-              ? const Radius.circular(12)
-              : Radius.zero,
-        ),
+        daysInRange.toList(),
       );
+
+      if (day != daysInRange.first && day != daysInRange.last) {
+        final rRect = _rectToRRect(
+          day.rect!,
+          rangeSelectionDecoration,
+        );
+
+        selectionPath.addRRect(rRect);
+      }
     }
+
+    canvas.drawPath(
+      selectionPath,
+      Paint()..color = rangeSelectionDecoration.color,
+    );
   }
 
   void _paintSelectedDates(Canvas canvas) {

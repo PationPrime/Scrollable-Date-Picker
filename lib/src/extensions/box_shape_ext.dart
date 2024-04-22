@@ -1,6 +1,6 @@
 library src.extensions.box_shape;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 
 extension BoxShapeState on BoxShape {
   bool get isCicle => this == BoxShape.circle;

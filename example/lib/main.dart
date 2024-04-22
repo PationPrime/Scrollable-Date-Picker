@@ -13,16 +13,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final _singleDateSelectionDecoration = const SelectionDecorationModel(
-    topLeftCorner: Radius.circular(12),
-    topRightCorner: Radius.circular(12),
-    bottomLeftCorner: Radius.circular(12),
-    bottomRightCorner: Radius.circular(12),
-    shape: BoxShape.circle,
-    width: 15,
-    color: Color.fromRGBO(63, 184, 175, 1),
-  );
-
   @override
   Widget build(BuildContext context) => MaterialApp(
         title: 'Flutter Demo',
@@ -44,9 +34,24 @@ class _MyAppState extends State<MyApp> {
                 minDate: DateTime(2022, 2, 1),
                 maxDate: DateTime(2024),
                 onDateSelect: (singleDate, dates, dateRange) {},
-                startDateSelectionDecoration: _singleDateSelectionDecoration,
-                endDateSelectionDecoration: _singleDateSelectionDecoration,
-                dateSelectionType: DateSelectionType.multiDates,
+                dateSelectionType: DateSelectionType.dateRange,
+                rangeSelectionDecoration: RangeSelectionDecoration(
+                  color: Colors.red,
+                  startDateSelectionDecoration: SingleSelectionDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    // borderRadius: BorderRadius.circular(12),
+                    // shape: BoxShape.circle,
+                    // height: 20,
+                    // width: 20,
+                    color: Colors.cyan.withOpacity(0.2),
+                  ),
+                  endDateSelectionDecoration: SingleSelectionDecoration(
+                    // shape: BoxShape.circle,
+                    // height: 20,
+                    // width: 20,
+                    color: Colors.cyan,
+                  ),
+                ),
               ),
             ),
           ),

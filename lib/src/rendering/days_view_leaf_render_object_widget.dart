@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:scrollable_date_picker/src/constants/constants.dart';
+import 'package:scrollable_date_picker/src/extensions/box_shape_ext.dart';
 import 'package:scrollable_date_picker/src/models/models.dart';
 
 import '../enums/enums.dart';
@@ -25,9 +26,6 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
   final TextStyle? dayNumberTextStyle;
   final TextStyle? previousMonthDayNumberTextStyle;
   final TextStyle? nextMonthDayNumberTextStyle;
-  final Color? selectionColor;
-  final SelectionDecorationModel startDateSelectionDecoration;
-  final SelectionDecorationModel endDateSelectionDecoration;
   final Function(DateTime?)? onDateSelect;
   final String? localeName;
   final DateSelectionType dateSelectionType;
@@ -37,6 +35,9 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
   final bool showPreviousMonthDays;
   final bool showNextMonthDays;
   final bool futureDatesAreAvailable;
+  final SingleSelectionDecoration singleSelectionDecoration;
+  final RangeSelectionDecoration rangeSelectionDecoration;
+  final double daysRowHeight;
 
   const DaysViewLeafRenderObjectWidget({
     super.key,
@@ -53,9 +54,6 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
     this.dayNumberTextStyle,
     this.previousMonthDayNumberTextStyle,
     this.nextMonthDayNumberTextStyle,
-    this.selectionColor,
-    required this.startDateSelectionDecoration,
-    required this.endDateSelectionDecoration,
     this.onDateSelect,
     this.localeName,
     required this.dateSelectionType,
@@ -65,6 +63,9 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
     required this.showPreviousMonthDays,
     required this.showNextMonthDays,
     required this.futureDatesAreAvailable,
+    required this.singleSelectionDecoration,
+    required this.rangeSelectionDecoration,
+    this.daysRowHeight = 40.0,
   })  : assert(daysCount >= 28 && daysCount <= 31),
         assert(startWeekday >= 1 && startWeekday <= 7);
 
@@ -76,9 +77,6 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
         startWeekday: startWeekday,
         betweenDates: betweenDates,
         showWeekdays: showWeekdays,
-        selectionColor: selectionColor,
-        startDateSelectionDecoration: startDateSelectionDecoration,
-        endDateSelectionDecoration: endDateSelectionDecoration,
         weekendDaysTextStyle: weekendDaysTextStyle,
         weekendDaysNameTextStyle: weekendDaysNameTextStyle,
         currentDateTextStyle: currentDateTextStyle,
@@ -96,6 +94,9 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
         showPreviousMonthDays: showPreviousMonthDays,
         showNextMonthDays: showNextMonthDays,
         futureDatesAreAvailable: futureDatesAreAvailable,
+        singleSelectionDecoration: singleSelectionDecoration,
+        rangeSelectionDecoration: rangeSelectionDecoration,
+        daysRowHeight: daysRowHeight,
       );
 
   @override
@@ -110,9 +111,6 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
         ..betweenDates = betweenDates
         ..showWeekdays = showWeekdays
         ..weekdayTextStyle = weekdaysNameTextStyle
-        ..selectionColor = selectionColor
-        ..startDateSelectionDecoration = startDateSelectionDecoration
-        ..endDateSelectionDecoration = endDateSelectionDecoration
         ..dayNumberTextStyle = dayNumberTextStyle
         ..weekendDaysTextStyle = weekendDaysTextStyle
         ..weekendDaysNameTextStyle = weekendDaysNameTextStyle
@@ -128,5 +126,8 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
         ..dateRange = dateRange
         ..showPreviousMonthDays = showPreviousMonthDays
         ..showNextMonthDays = showNextMonthDays
-        ..futureDatesAreAvailable = futureDatesAreAvailable;
+        ..futureDatesAreAvailable = futureDatesAreAvailable
+        ..singleSelectionDecoration = singleSelectionDecoration
+        ..rangeSelectionDecoration = rangeSelectionDecoration
+        ..daysRowHeight = daysRowHeight;
 }

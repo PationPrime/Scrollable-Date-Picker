@@ -53,15 +53,6 @@ class ScrollableDatePicker extends StatefulWidget {
   /// Future days (days after [DateTime.now()]) text style
   final TextStyle futureDatesTextStyle;
 
-  /// Range selection color
-  final Color selectionColor;
-
-  /// Start date selection decoration
-  final SelectionDecorationModel startDateSelectionDecoration;
-
-  /// End date selection decoration
-  final SelectionDecorationModel endDateSelectionDecoration;
-
   /// Flag to controll which dates should be displayed.
   /// If value is [true], displayes dates only between [minDate] and [maxDate],
   /// else displays dates starts from [DateTime(minDate.year, 1, 1)] to [DateTime(maxDate.year, 12, 1)]
@@ -70,7 +61,7 @@ class ScrollableDatePicker extends StatefulWidget {
   /// Month and weekday localization
   final String? localeName;
 
-  /// Type of date selection (singleDate, multiDates, dateRange)
+  /// Type of date selection [DateSelectionType.singleDate], [DateSelectionType.multiDates], [DateSelectionType.dateRange]
   final DateSelectionType dateSelectionType;
 
   /// Date selected with [DateSelectionType.singleDate] selection type
@@ -113,6 +104,13 @@ class ScrollableDatePicker extends StatefulWidget {
   /// Flag to controll interaction with dates after [DateTime.now()]
   final bool futureDatesAreAvailable;
 
+  /// [DateSelectionType.singleDate] and [DateSelectionType.multiDates]
+  /// decoration configuration
+  final SingleSelectionDecoration singleSelectionDecoration;
+
+  /// [DateSelectionType.dateRange] decoration configuration
+  final RangeSelectionDecoration rangeSelectionDecoration;
+
   ScrollableDatePicker({
     super.key,
     this.initialDate,
@@ -136,9 +134,6 @@ class ScrollableDatePicker extends StatefulWidget {
     this.nextMonthDayNumberTextStyle,
     this.monthNameTextStyle,
     this.futureDatesTextStyle = const TextStyle(color: Colors.grey),
-    this.selectionColor = const Color.fromRGBO(63, 184, 175, 0.7),
-    this.startDateSelectionDecoration = const SelectionDecorationModel(),
-    this.endDateSelectionDecoration = const SelectionDecorationModel(),
     this.showDatesOnlyBetweenMinAndMax = false,
     this.localeName,
     this.dateSelectionType = DateSelectionType.singleDate,
@@ -154,6 +149,8 @@ class ScrollableDatePicker extends StatefulWidget {
     this.showNextMonthDays = false,
     this.monthViewDateFormat,
     this.futureDatesAreAvailable = false,
+    this.singleSelectionDecoration = const SingleSelectionDecoration(),
+    this.rangeSelectionDecoration = const RangeSelectionDecoration(),
   })  : assert(
           minDate.isBefore(maxDate),
           "Minimum date cannot be after maximum date",
@@ -243,8 +240,21 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
       _startDateSelect(date);
     } else if (_dateRange?.endDate is! DateTime) {
       _endDateSelect(date);
+
+      if (_dateRange!.endDate!.isBefore(_dateRange!.startDate!)) {
+        _swapDatesInDateRange();
+      }
     }
+
     if (triggerCallback) widget.onDateSelect?.call(null, null, _dateRange);
+  }
+
+  void _swapDatesInDateRange() {
+    final firstDate = _dateRange!.endDate;
+    final lastDate = _dateRange!.startDate;
+
+    _startDateSelect(firstDate);
+    _endDateSelect(lastDate);
   }
 
   void _singleDateSelect(DateTime? date) {
@@ -290,10 +300,11 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     switch (widget.dateSelectionType) {
       case DateSelectionType.singleDate:
         _singleDateSelect(date);
+
       case DateSelectionType.multiDates:
         final lastDayInMonth = date.copyWith(day: 0, month: date.month + 1).day;
 
-        if (_selectedDates.isNotEmpty) _selectedDates.clear();
+        if (_selectedDates.isNotEmpty) _clearSelectedDates();
 
         for (int day = 1; day <= lastDayInMonth; day++) {
           _addSelectedDate(
@@ -303,6 +314,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
         }
 
       case DateSelectionType.dateRange:
+        _clearDateRange();
         _selectDateRange(date, triggerCallback: false);
         _selectDateRange(date.copyWith(day: 0, month: date.month + 1));
     }
@@ -349,13 +361,27 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     );
   }
 
+  void _clearSingleDate() {
+    _selectedSingleDate = null;
+  }
+
+  void _clearDateRange() {
+    _dateRange = null;
+  }
+
+  void _clearSelectedDates() {
+    _selectedDates.clear();
+  }
+
   void _clearDates() {
-    setState(() {
-      _selectedSingleDate = null;
-      _dateRange = null;
-      _selectedDates.clear();
-      widget.onDateSelect?.call(null, null, null);
-    });
+    setState(
+      () {
+        _clearSingleDate();
+        _clearDateRange();
+        _clearSelectedDates();
+        widget.onDateSelect?.call(null, null, null);
+      },
+    );
   }
 
   @override
@@ -417,10 +443,6 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
                     _dateRange?.endDate is DateTime &&
                     _dateRange!.endDate!.isAfter(_dates[index]),
                 showWeekdays: widget.showWeekdays,
-                selectionColor: widget.selectionColor,
-                startDateSelectionDecoration:
-                    widget.startDateSelectionDecoration,
-                endDateSelectionDecoration: widget.endDateSelectionDecoration,
                 weekdaysNameTextStyle: widget.weekdaysNameTextStyle,
                 weekendDaysTextStyle: widget.weekendDaysTextStyle,
                 weekendDaysNameTextStyle: widget.weekendDaysNameTextStyle,
@@ -439,6 +461,8 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
                 showPreviousMonthDays: widget.showPreviousMonthDays,
                 showNextMonthDays: widget.showNextMonthDays,
                 futureDatesAreAvailable: widget.futureDatesAreAvailable,
+                singleSelectionDecoration: widget.singleSelectionDecoration,
+                rangeSelectionDecoration: widget.rangeSelectionDecoration,
               ),
             ],
           ),
