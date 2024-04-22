@@ -25,31 +25,28 @@ class _MyAppState extends State<MyApp> {
           body: SafeArea(
             bottom: false,
             child: Padding(
-              padding: const EdgeInsets.only(
-                top: 10,
-                left: 10,
-                right: 10,
-              ),
+              padding: const EdgeInsets.all(10),
               child: ScrollableDatePicker(
                 minDate: DateTime(2022, 2, 1),
                 maxDate: DateTime(2024),
                 onDateSelect: (singleDate, dates, dateRange) {},
                 dateSelectionType: DateSelectionType.dateRange,
+                daysRowHeight: 45,
+                singleSelectionDecoration: const SingleSelectionDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.greenAccent,
+                ),
                 rangeSelectionDecoration: RangeSelectionDecoration(
-                  color: Colors.red,
-                  startDateSelectionDecoration: SingleSelectionDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                    // borderRadius: BorderRadius.circular(12),
-                    // shape: BoxShape.circle,
-                    // height: 20,
-                    // width: 20,
-                    color: Colors.cyan.withOpacity(0.2),
+                  color: const Color(0xFF3FB8AF).withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(12),
+                  height: 30,
+                  startDateSelectionDecoration: const SingleSelectionDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xFF3FB8AF),
                   ),
-                  endDateSelectionDecoration: SingleSelectionDecoration(
-                    // shape: BoxShape.circle,
-                    // height: 20,
-                    // width: 20,
-                    color: Colors.cyan,
+                  endDateSelectionDecoration: const SingleSelectionDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xFF3FB8AF),
                   ),
                 ),
               ),

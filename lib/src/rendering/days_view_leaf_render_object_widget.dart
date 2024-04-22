@@ -65,7 +65,7 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
     required this.futureDatesAreAvailable,
     required this.singleSelectionDecoration,
     required this.rangeSelectionDecoration,
-    this.daysRowHeight = 40.0,
+    required this.daysRowHeight,
   })  : assert(daysCount >= 28 && daysCount <= 31),
         assert(startWeekday >= 1 && startWeekday <= 7);
 

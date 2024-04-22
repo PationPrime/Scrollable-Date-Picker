@@ -111,6 +111,10 @@ class ScrollableDatePicker extends StatefulWidget {
   /// [DateSelectionType.dateRange] decoration configuration
   final RangeSelectionDecoration rangeSelectionDecoration;
 
+  /// Days row height.
+  /// Used to controll height of each week row in month view
+  final double daysRowHeight;
+
   ScrollableDatePicker({
     super.key,
     this.initialDate,
@@ -149,8 +153,13 @@ class ScrollableDatePicker extends StatefulWidget {
     this.showNextMonthDays = false,
     this.monthViewDateFormat,
     this.futureDatesAreAvailable = false,
-    this.singleSelectionDecoration = const SingleSelectionDecoration(),
+    this.singleSelectionDecoration = const SingleSelectionDecoration(
+      color: Colors.redAccent,
+      shape: BoxShape.circle,
+      height: 15,
+    ),
     this.rangeSelectionDecoration = const RangeSelectionDecoration(),
+    this.daysRowHeight = 40.0,
   })  : assert(
           minDate.isBefore(maxDate),
           "Minimum date cannot be after maximum date",
@@ -463,6 +472,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
                 futureDatesAreAvailable: widget.futureDatesAreAvailable,
                 singleSelectionDecoration: widget.singleSelectionDecoration,
                 rangeSelectionDecoration: widget.rangeSelectionDecoration,
+                daysRowHeight: widget.daysRowHeight,
               ),
             ],
           ),
