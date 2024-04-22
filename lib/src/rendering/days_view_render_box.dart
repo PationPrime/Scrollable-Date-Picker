@@ -740,8 +740,6 @@ class DaysViewRenderBox extends RenderBox {
             _days.any((day) => dateRange?.startDate == day.date)) ||
         day == daysInRange.last &&
             _days.any((day) => dateRange?.endDate == day.date)) {
-      print(day.date);
-
       Rect? firstDayRect;
 
       final firstDayPath = Path();
