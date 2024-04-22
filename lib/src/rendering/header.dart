@@ -1,15 +1,17 @@
 part of 'days_view_leaf_render_object_widget.dart';
 
-class MonthTitle extends StatelessWidget {
+class Header extends StatelessWidget {
   final String title;
   final VoidCallback? onTap;
   final TextStyle? textStyle;
+  final BoxDecoration? headerDecoration;
 
-  const MonthTitle({
+  const Header({
     super.key,
     required this.title,
     this.onTap,
     this.textStyle,
+    this.headerDecoration,
   });
 
   @override
@@ -20,10 +22,11 @@ class MonthTitle extends StatelessWidget {
           child: Container(
             height: 30,
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
-            decoration: BoxDecoration(
-              color: Colors.white10,
-              borderRadius: BorderRadius.circular(100),
-            ),
+            decoration: headerDecoration ??
+                BoxDecoration(
+                  color: Colors.white10,
+                  borderRadius: BorderRadius.circular(100),
+                ),
             child: Text(
               title,
               style: textStyle ??

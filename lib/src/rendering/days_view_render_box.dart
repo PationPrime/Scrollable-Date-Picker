@@ -58,12 +58,12 @@ class DaysViewRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
-  TextStyle? _weekdayTextStyle;
-  TextStyle? get weekdayTextStyle => _weekdayTextStyle;
+  TextStyle? _weekdaysNameStyle;
+  TextStyle? get weekdayTextStyle => _weekdaysNameStyle;
 
   set weekdayTextStyle(TextStyle? style) {
-    if (_weekdayTextStyle == style) return;
-    _weekdayTextStyle = style;
+    if (_weekdaysNameStyle == style) return;
+    _weekdaysNameStyle = style;
     markNeedsPaint();
   }
 
@@ -226,14 +226,16 @@ class DaysViewRenderBox extends RenderBox {
     if (_selectedSingleDate == date) return;
     _selectedSingleDate = date;
     markNeedsPaint();
+    markNeedsLayout();
   }
 
-  List<DateTime>? _selectedDates;
-  List<DateTime>? get selectedDates => _selectedDates;
+  late List<DateTime> _selectedDates;
+  List<DateTime> get selectedDates => _selectedDates;
 
-  set selectedDates(List<DateTime>? dates) {
+  set selectedDates(List<DateTime> dates) {
     _selectedDates = dates;
     markNeedsPaint();
+    markNeedsLayout();
   }
 
   DateRangeModel? _dateRange;
@@ -243,6 +245,7 @@ class DaysViewRenderBox extends RenderBox {
     if (_dateRange == range) return;
     _dateRange = range;
     markNeedsPaint();
+    markNeedsLayout();
   }
 
   late bool _showPreviousMonthDays;
@@ -281,6 +284,22 @@ class DaysViewRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
+  List<DayViewModel> get _daysInRange {
+    if (dateRange?.startDate is! DateTime || dateRange?.endDate is! DateTime) {
+      return [];
+    }
+
+    return _days
+        .where(
+          (day) =>
+              day.date == dateRange!.startDate ||
+              day.date == dateRange!.endDate ||
+              day.date!.isAfter(dateRange!.startDate!) &&
+                  day.date!.isBefore(dateRange!.endDate!),
+        )
+        .toList();
+  }
+
   void _onDateTap(DayViewModel tappedDay) {
     final date = viewDate.copyWith(
       day: tappedDay.number,
@@ -302,9 +321,9 @@ class DaysViewRenderBox extends RenderBox {
     required DateTime viewDate,
     required bool betweenDates,
     required bool showWeekdays,
-    TextStyle? weekdayTextStyle,
     TextStyle? dayNumberTextStyle,
-    required TextStyle weekendDaysTextStyle,
+    TextStyle? weekdaysNameTextStyle,
+    required TextStyle weekendDaysNumberStyle,
     required TextStyle weekendDaysNameTextStyle,
     required TextStyle currentDateTextStyle,
     required TextStyle futureDatesTextStyle,
@@ -313,7 +332,7 @@ class DaysViewRenderBox extends RenderBox {
     String? localeName,
     required DateSelectionType dateSelectionType,
     DateTime? selectedSingleDate,
-    List<DateTime>? selectedDates,
+    required List<DateTime> selectedDates,
     DateRangeModel? dateRange,
     void Function(DateTime?)? onDateSelect,
     required bool showPreviousMonthDays,
@@ -327,9 +346,9 @@ class DaysViewRenderBox extends RenderBox {
         _viewDate = viewDate,
         _betweenDates = betweenDates,
         _showWeekdays = showWeekdays,
-        _weekdayTextStyle = weekdayTextStyle,
+        _weekdaysNameStyle = weekdaysNameTextStyle,
         _dayNumberTextStyle = dayNumberTextStyle,
-        _weekendDaysTextStyle = weekendDaysTextStyle,
+        _weekendDaysTextStyle = weekendDaysNumberStyle,
         _weekendDaysNameTextStyle = weekendDaysNameTextStyle,
         _currentDateTextStyle = currentDateTextStyle,
         _futureDatesTextStyle = futureDatesTextStyle,
@@ -406,6 +425,30 @@ class DaysViewRenderBox extends RenderBox {
         textDirection: TextDirection.ltr,
       );
 
+  TextStyle? _dayNumberPainterTextStyle(
+    DayViewModel day,
+  ) {
+    final decoration = dateSelectionType.isDateRange
+        ? rangeSelectionDecoration
+        : singleSelectionDecoration;
+
+    if (selectedDates.contains(day.date!) ||
+        _daysInRange.contains(day) ||
+        dateRange?.startDate == day.date ||
+        dateRange?.endDate == day.date ||
+        selectedSingleDate == day.date) {
+      return decoration.selectedDateTextStyle;
+    } else if (day.date == _dateTimeNow) {
+      return currentDateTextStyle;
+    } else if (day.date?.weekday == 6 || day.date?.weekday == 7) {
+      return weekendDaysTextStyle;
+    } else if (!futureDatesAreAvailable && day.date!.isAfter(_dateTimeNow)) {
+      return futureDatesTextStyle;
+    }
+
+    return null;
+  }
+
   @override
   Size computeDryLayout(BoxConstraints constraints) {
     final desiredWidth = constraints.maxWidth;
@@ -426,10 +469,27 @@ class DaysViewRenderBox extends RenderBox {
       initialDY,
     );
 
-    for (final day in _days) {
+    for (int i = 0; i < _days.length; i++) {
+      DayViewModel? day = _days[i].copyWith(
+        selectionCenter: position,
+        rect: Rect.fromCenter(
+          center: position,
+          width: dayStepDX,
+          height: dayStepDY,
+        ),
+        date: viewDate.copyWith(
+          day: _days[i].number,
+        ),
+      );
+
       final nextDayWeekday = viewDate.copyWith(day: day.number + 1).weekday;
 
-      final painter = _dayNumberPainer(day.number);
+      final painter = _dayNumberPainer(
+        day.number,
+        textStyle: _dayNumberPainterTextStyle(
+          day,
+        ),
+      );
 
       painter.layout();
 
@@ -438,21 +498,12 @@ class DaysViewRenderBox extends RenderBox {
         position.dy - painter.size.height / 2,
       );
 
-      _days.remove(day);
+      _days.removeAt(i);
 
       _days.insert(
         day.number - 1,
         day.copyWith(
-          selectionCenter: position,
           dayCenter: dayCenter,
-          rect: Rect.fromCenter(
-            center: position,
-            width: dayStepDX,
-            height: dayStepDY,
-          ),
-          date: viewDate.copyWith(
-            day: day.number,
-          ),
         ),
       );
 
@@ -527,13 +578,9 @@ class DaysViewRenderBox extends RenderBox {
     for (final day in _days) {
       final painter = _dayNumberPainer(
         day.number,
-        textStyle: day.date == _dateTimeNow
-            ? currentDateTextStyle
-            : day.date?.weekday == 6 || day.date?.weekday == 7
-                ? weekendDaysTextStyle
-                : !futureDatesAreAvailable && day.date!.isAfter(_dateTimeNow)
-                    ? futureDatesTextStyle
-                    : null,
+        textStyle: _dayNumberPainterTextStyle(
+          day,
+        ),
       );
 
       painter.layout();
@@ -734,17 +781,16 @@ class DaysViewRenderBox extends RenderBox {
   Path? _paintStartAndEndDateSelectionGap(
     Canvas canvas,
     DayViewModel day,
-    List<DayViewModel> daysInRange,
   ) {
-    if ((day == daysInRange.first &&
+    if ((day == _daysInRange.first &&
             _days.any((day) => dateRange?.startDate == day.date)) ||
-        day == daysInRange.last &&
+        day == _daysInRange.last &&
             _days.any((day) => dateRange?.endDate == day.date)) {
       Rect? firstDayRect;
 
       final firstDayPath = Path();
 
-      if (day == daysInRange.first || day == daysInRange.last) {
+      if (day == _daysInRange.first || day == _daysInRange.last) {
         if (rangeSelectionDecoration
                 .startDateSelectionDecoration.shape.isCicle ||
             rangeSelectionDecoration
@@ -755,7 +801,7 @@ class DaysViewRenderBox extends RenderBox {
                 BorderRadius.zero) {
           firstDayRect = Rect.fromCircle(
             center: day.selectionCenter!,
-            radius: (day == daysInRange.first
+            radius: (day == _daysInRange.first
                     ? rangeSelectionDecoration
                         .startDateSelectionDecoration.width
                     : rangeSelectionDecoration
@@ -792,7 +838,7 @@ class DaysViewRenderBox extends RenderBox {
       final halfOfDifferencePath = Rect.fromCenter(
         center: Offset(
           day.selectionCenter!.dx +
-              (day == daysInRange.first &&
+              (day == _daysInRange.first &&
                       _days.any((day) => dateRange?.startDate == day.date)
                   ? -size.width / 28
                   : size.width / 28),
@@ -816,33 +862,24 @@ class DaysViewRenderBox extends RenderBox {
   }
 
   void _paintSelectionBetweenDateRange(Canvas canvas) {
-    final daysInRange = _days.where(
-      (day) =>
-          day.date == dateRange!.startDate ||
-          day.date == dateRange!.endDate ||
-          day.date!.isAfter(dateRange!.startDate!) &&
-              day.date!.isBefore(dateRange!.endDate!),
-    );
-
     Path selectionPath = Path();
 
-    for (final day in daysInRange) {
+    for (final day in _daysInRange) {
       final gapPath = _paintStartAndEndDateSelectionGap(
         canvas,
         day,
-        daysInRange.toList(),
       );
 
       if (day.date != dateRange?.startDate && day.date != dateRange!.endDate) {
         ///
         final decoration = rangeSelectionDecoration.copyWith(
-          borderRadius: day.date!.weekday == 1 && day == daysInRange.last
+          borderRadius: day.date!.weekday == 1 && day == _daysInRange.last
               ? rangeSelectionDecoration.borderRadius
-              : day.date!.weekday == 1 || day == daysInRange.first
+              : day.date!.weekday == 1 || day == _daysInRange.first
                   ? BorderRadius.horizontal(
                       left: rangeSelectionDecoration.borderRadius.topLeft,
                     )
-                  : day.date!.weekday == 7 || day == daysInRange.last
+                  : day.date!.weekday == 7 || day == _daysInRange.last
                       ? BorderRadius.horizontal(
                           right: rangeSelectionDecoration.borderRadius.topRight,
                         )
@@ -873,9 +910,7 @@ class DaysViewRenderBox extends RenderBox {
   }
 
   void _paintSelectedDates(Canvas canvas) {
-    if (selectedDates is! List<DateTime>) return;
-
-    for (final date in selectedDates!) {
+    for (final date in selectedDates) {
       _paintSingleSelection(
         canvas,
         date: date,

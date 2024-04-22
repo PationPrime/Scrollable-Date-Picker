@@ -1,6 +1,5 @@
 part of 'selection_decoration.dart';
 
-@immutable
 final class SingleSelectionDecoration extends SelectionDecoration {
   final BoxShape shape;
   final double? width;
@@ -10,6 +9,7 @@ final class SingleSelectionDecoration extends SelectionDecoration {
     super.borderRadius,
     super.color,
     super.height,
+    super.selectedDateTextStyle,
     this.width,
   });
 
@@ -19,6 +19,7 @@ final class SingleSelectionDecoration extends SelectionDecoration {
     BorderRadius? borderRadius,
     Color? color,
     double? height,
+    TextStyle? selectedDateTextStyle,
     double? width,
   }) =>
       SingleSelectionDecoration(
@@ -26,6 +27,8 @@ final class SingleSelectionDecoration extends SelectionDecoration {
         borderRadius: borderRadius ?? this.borderRadius,
         color: color ?? this.color,
         height: height ?? this.height,
+        selectedDateTextStyle:
+            selectedDateTextStyle ?? this.selectedDateTextStyle,
         width: width ?? this.width,
       );
 
@@ -35,6 +38,7 @@ final class SingleSelectionDecoration extends SelectionDecoration {
         borderRadius,
         color,
         height,
+        selectedDateTextStyle,
         width,
       );
 
@@ -46,5 +50,6 @@ final class SingleSelectionDecoration extends SelectionDecoration {
       other.borderRadius == borderRadius &&
       other.color == color &&
       other.height == height &&
+      other.selectedDateTextStyle == selectedDateTextStyle &&
       other.width == width;
 }

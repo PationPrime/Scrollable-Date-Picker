@@ -1,6 +1,5 @@
 part of 'selection_decoration.dart';
 
-@immutable
 final class RangeSelectionDecoration extends SelectionDecoration {
   final SingleSelectionDecoration startDateSelectionDecoration;
   final SingleSelectionDecoration endDateSelectionDecoration;
@@ -11,6 +10,7 @@ final class RangeSelectionDecoration extends SelectionDecoration {
     super.borderRadius,
     super.height,
     super.color,
+    super.selectedDateTextStyle,
   });
 
   @override
@@ -20,6 +20,7 @@ final class RangeSelectionDecoration extends SelectionDecoration {
     Color? color,
     BorderRadius? borderRadius,
     double? height,
+    TextStyle? selectedDateTextStyle,
   }) =>
       RangeSelectionDecoration(
         startDateSelectionDecoration:
@@ -29,6 +30,8 @@ final class RangeSelectionDecoration extends SelectionDecoration {
         color: color ?? this.color,
         borderRadius: borderRadius ?? this.borderRadius,
         height: height ?? this.height,
+        selectedDateTextStyle:
+            selectedDateTextStyle ?? this.selectedDateTextStyle,
       );
 
   @override
@@ -38,6 +41,7 @@ final class RangeSelectionDecoration extends SelectionDecoration {
         color,
         borderRadius,
         height,
+        selectedDateTextStyle,
       );
 
   @override
@@ -48,5 +52,6 @@ final class RangeSelectionDecoration extends SelectionDecoration {
       other.endDateSelectionDecoration == endDateSelectionDecoration &&
       other.color == color &&
       other.borderRadius == borderRadius &&
-      other.height == height;
+      other.height == height &&
+      other.selectedDateTextStyle == selectedDateTextStyle;
 }

@@ -10,7 +10,7 @@ import 'package:scrollable_date_picker/src/models/models.dart';
 import '../enums/enums.dart';
 
 part 'days_view_render_box.dart';
-part 'month_title.dart';
+part 'header.dart';
 
 class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
   final int daysCount;
@@ -30,7 +30,7 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
   final String? localeName;
   final DateSelectionType dateSelectionType;
   final DateTime? selectedSingleDate;
-  final List<DateTime>? selectedDates;
+  final List<DateTime> selectedDates;
   final DateRangeModel? dateRange;
   final bool showPreviousMonthDays;
   final bool showNextMonthDays;
@@ -58,7 +58,7 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
     this.localeName,
     required this.dateSelectionType,
     this.selectedSingleDate,
-    this.selectedDates,
+    required this.selectedDates,
     this.dateRange,
     required this.showPreviousMonthDays,
     required this.showNextMonthDays,
@@ -77,12 +77,12 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
         startWeekday: startWeekday,
         betweenDates: betweenDates,
         showWeekdays: showWeekdays,
-        weekendDaysTextStyle: weekendDaysTextStyle,
+        dayNumberTextStyle: dayNumberTextStyle,
+        weekdaysNameTextStyle: weekdaysNameTextStyle,
+        weekendDaysNumberStyle: weekendDaysTextStyle,
         weekendDaysNameTextStyle: weekendDaysNameTextStyle,
         currentDateTextStyle: currentDateTextStyle,
         futureDatesTextStyle: futureDatesTextStyle,
-        dayNumberTextStyle: dayNumberTextStyle,
-        weekdayTextStyle: weekdaysNameTextStyle,
         previousMonthDayNumberTextStyle: previousMonthDayNumberTextStyle,
         nextMonthDayNumberTextStyle: nextMonthDayNumberTextStyle,
         onDateSelect: onDateSelect,
