@@ -153,11 +153,7 @@ class ScrollableDatePicker extends StatefulWidget {
     this.showNextMonthDays = false,
     this.monthViewDateFormat,
     this.futureDatesAreAvailable = false,
-    this.singleSelectionDecoration = const SingleSelectionDecoration(
-      color: Colors.redAccent,
-      shape: BoxShape.circle,
-      height: 15,
-    ),
+    this.singleSelectionDecoration = const SingleSelectionDecoration(),
     this.rangeSelectionDecoration = const RangeSelectionDecoration(),
     this.daysRowHeight = 40.0,
   })  : assert(

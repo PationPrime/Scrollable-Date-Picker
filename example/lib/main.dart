@@ -31,11 +31,6 @@ class _MyAppState extends State<MyApp> {
                 maxDate: DateTime(2024),
                 onDateSelect: (singleDate, dates, dateRange) {},
                 dateSelectionType: DateSelectionType.dateRange,
-                daysRowHeight: 45,
-                singleSelectionDecoration: const SingleSelectionDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.greenAccent,
-                ),
                 rangeSelectionDecoration: RangeSelectionDecoration(
                   color: const Color(0xFF3FB8AF).withOpacity(0.7),
                   borderRadius: BorderRadius.circular(12),
@@ -43,10 +38,12 @@ class _MyAppState extends State<MyApp> {
                   startDateSelectionDecoration: const SingleSelectionDecoration(
                     shape: BoxShape.circle,
                     color: Color(0xFF3FB8AF),
+                    height: 20,
                   ),
                   endDateSelectionDecoration: const SingleSelectionDecoration(
                     shape: BoxShape.circle,
                     color: Color(0xFF3FB8AF),
+                    height: 20,
                   ),
                 ),
               ),
