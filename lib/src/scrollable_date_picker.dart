@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:scrollable_date_picker/src/enums/enums.dart';
+import 'package:scrollable_date_picker/scrollable_date_picker.dart';
 import 'package:scrollable_date_picker/src/rendering/rendering.dart';
-
-import 'models/models.dart';
 
 typedef HeaderBuilder = Widget Function(
   BuildContext,
@@ -35,22 +32,22 @@ class ScrollableDatePicker extends StatefulWidget {
   final TextStyle? weekdaysNameTextStyle;
 
   /// Weekend day name text style
-  final TextStyle weekendDaysNameTextStyle;
+  final TextStyle? weekendDaysNameTextStyle;
 
   /// Weekend day numbers text style
-  final TextStyle weekendDaysTextStyle;
+  final TextStyle? weekendDaysTextStyle;
 
   /// Current day [DateTime.now().day] text style
-  final TextStyle currentDateTextStyle;
+  final TextStyle? currentDateTextStyle;
 
   /// Month day text style
   final TextStyle? dayNumberTextStyle;
 
   /// Previous month days text style
-  final TextStyle? previousMonthDayNumberTextStyle;
+  final TextStyle previousMonthDayNumberTextStyle;
 
   /// Next month days text style
-  final TextStyle? nextMonthDayNumberTextStyle;
+  final TextStyle nextMonthDayNumberTextStyle;
 
   /// Month name text style
   final TextStyle? headerTextStyle;
@@ -66,13 +63,13 @@ class ScrollableDatePicker extends StatefulWidget {
   /// Month and weekday localization
   final String? localeName;
 
-  /// Type of date selection [DateSelectionType.singleDate], [DateSelectionType.multiDates], [DateSelectionType.dateRange]
+  /// Type of date selection [DateSelectionType.singleDate], [DateSelectionType.multipleDates], [DateSelectionType.dateRange]
   final DateSelectionType dateSelectionType;
 
   /// Date selected with [DateSelectionType.singleDate] selection type
   final DateTime? selectedSingleDate;
 
-  /// Dates selected with [DateSelectionType.multiDates] selection type
+  /// Dates selected with [DateSelectionType.multipleDates] selection type
   final List<DateTime>? selectedDates;
 
   /// Date range from [startDate] to [endDate] with [DateSelectionType.dateRange] selection type
@@ -106,7 +103,7 @@ class ScrollableDatePicker extends StatefulWidget {
   /// Flag to controll interaction with dates after [DateTime.now()]
   final bool futureDatesAreAvailable;
 
-  /// [DateSelectionType.singleDate] and [DateSelectionType.multiDates]
+  /// [DateSelectionType.singleDate] and [DateSelectionType.multipleDates]
   /// decoration configuration
   final SingleSelectionDecoration singleSelectionDecoration;
 
@@ -123,8 +120,20 @@ class ScrollableDatePicker extends StatefulWidget {
   /// typedef function used for title customization
   final HeaderBuilder? headerBuilder;
 
-  /// Padding between months
-  final EdgeInsetsGeometry? monthViewPadding;
+  /// Title padding
+  final EdgeInsets headerPadding;
+
+  /// ListView padding
+  final EdgeInsets datePickerPadding;
+
+  /// Month view padding
+  final EdgeInsets monthViewPadding;
+
+  /// Month view height
+  final double? monthViewHeight;
+
+  /// Month view width
+  final double? monthViewWidth;
 
   ScrollableDatePicker({
     super.key,
@@ -135,18 +144,12 @@ class ScrollableDatePicker extends StatefulWidget {
     this.repeatWeekdayNames = true,
     this.showHeaderTitle = true,
     this.weekdaysNameTextStyle,
-    this.weekendDaysNameTextStyle = const TextStyle(
-      color: Colors.blue,
-    ),
-    this.weekendDaysTextStyle = const TextStyle(
-      color: Colors.blue,
-    ),
-    this.currentDateTextStyle = const TextStyle(
-      color: Colors.redAccent,
-    ),
+    this.weekendDaysNameTextStyle,
+    this.weekendDaysTextStyle,
+    this.currentDateTextStyle,
     this.dayNumberTextStyle,
-    this.previousMonthDayNumberTextStyle,
-    this.nextMonthDayNumberTextStyle,
+    this.previousMonthDayNumberTextStyle = const TextStyle(color: Colors.grey),
+    this.nextMonthDayNumberTextStyle = const TextStyle(color: Colors.grey),
     this.headerTextStyle,
     this.futureDatesTextStyle = const TextStyle(color: Colors.grey),
     this.showDatesOnlyBetweenMinAndMax = false,
@@ -163,29 +166,39 @@ class ScrollableDatePicker extends StatefulWidget {
     this.showNextMonthDays = false,
     this.headerDateFormat,
     this.futureDatesAreAvailable = false,
-    this.singleSelectionDecoration = const SingleSelectionDecoration(),
-    this.rangeSelectionDecoration = const RangeSelectionDecoration(),
-    this.daysRowHeight = 40.0,
+    this.singleSelectionDecoration = const SingleSelectionDecoration(
+      shape: BoxShape.circle,
+      color: Color(0xFF3FB8AF),
+      height: 20,
+    ),
+    this.rangeSelectionDecoration = const RangeSelectionDecoration(
+      color: Color.fromARGB(200, 63, 184, 175),
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+      height: 30,
+      startDateSelectionDecoration: SingleSelectionDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xFF3FB8AF),
+        height: 20,
+      ),
+      endDateSelectionDecoration: SingleSelectionDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xFF3FB8AF),
+        height: 20,
+      ),
+    ),
+    this.daysRowHeight = 60.0,
     this.headerDecoration,
     this.headerBuilder,
-    this.monthViewPadding,
-  })  : assert(
+    this.headerPadding = const EdgeInsets.symmetric(
+      vertical: 20,
+    ),
+    this.datePickerPadding = const EdgeInsets.only(),
+    this.monthViewPadding = const EdgeInsets.only(),
+    this.monthViewHeight,
+    this.monthViewWidth,
+  }) : assert(
           minDate.isBefore(maxDate),
           "Minimum date cannot be after maximum date",
-        ),
-        assert(
-          (selectedSingleDate == null &&
-                  selectedDates == null &&
-                  dateRange == null) ||
-              (selectedSingleDate != null &&
-                  selectedDates == null &&
-                  dateRange == null) ||
-              (selectedSingleDate == null &&
-                  selectedDates != null &&
-                  dateRange == null) ||
-              selectedSingleDate == null &&
-                  selectedDates == null &&
-                  dateRange != null,
         );
 
   @override
@@ -201,13 +214,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
   DateRangeModel? _dateRange;
   List<DateTime> _selectedDates = [];
 
-  final _dateTimeNow = DateTime.now().copyWith(
-    hour: 0,
-    minute: 0,
-    second: 0,
-    millisecond: 0,
-    microsecond: 0,
-  );
+  final _dateTimeNow = DateTime.now().dateOnly;
 
   void _generateDates() {
     _dates = [];
@@ -234,7 +241,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
       case DateSelectionType.singleDate:
         _singleDateSelect(date);
 
-      case DateSelectionType.multiDates:
+      case DateSelectionType.multipleDates:
         if (date is! DateTime) {
           return;
         }
@@ -251,7 +258,9 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     bool triggerCallback = true,
   }) {
     if (_dateRange?.startDate is DateTime && _dateRange?.endDate is DateTime) {
-      _dateRange = null;
+      setState(() {
+        _dateRange = null;
+      });
     }
 
     if (_dateRange?.startDate is! DateTime) {
@@ -321,7 +330,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
       case DateSelectionType.singleDate:
         _singleDateSelect(date);
 
-      case DateSelectionType.multiDates:
+      case DateSelectionType.multipleDates:
         final lastDayInMonth = date.copyWith(day: 0, month: date.month + 1).day;
 
         if (_selectedDates.isNotEmpty) _clearSelectedDates();
@@ -394,6 +403,13 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
 
   @override
   void didUpdateWidget(covariant ScrollableDatePicker oldWidget) {
+    if (oldWidget.minDate != widget.minDate ||
+        oldWidget.maxDate != widget.maxDate) {
+      setState(
+        () => _generateDates(),
+      );
+    }
+
     if (oldWidget.dateSelectionType != widget.dateSelectionType) {
       _clearDates();
     }
@@ -427,6 +443,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
 
   @override
   Widget build(BuildContext context) => ListView.builder(
+        padding: widget.datePickerPadding,
         itemExtent: widget.itemExtent,
         controller: _scrollController,
         physics: widget.scrollPhysics,
@@ -441,10 +458,14 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
                       _onHeaderTap,
                     )
                   : Padding(
-                      padding: widget.monthViewPadding ??
-                          const EdgeInsets.symmetric(
-                            vertical: 20,
-                          ),
+                      padding: EdgeInsets.fromLTRB(
+                        widget.headerPadding.left,
+                        index == 0 ? 0 : widget.headerPadding.top,
+                        widget.headerPadding.right,
+                        index == _dates.length - 1
+                            ? 0
+                            : widget.headerPadding.bottom,
+                      ),
                       child: Header(
                         onTap: () => _onHeaderTap(
                           _dates[index],
@@ -457,41 +478,49 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
                         headerDecoration: widget.headerDecoration,
                       ),
                     ),
-            DaysViewLeafRenderObjectWidget(
-              daysCount: _dates[index]
-                  .copyWith(
-                    month: _dates[index].month + 1,
-                    day: 0,
-                  )
-                  .day,
-              startWeekday: _dates[index].weekday,
-              viewDate: _dates[index],
-              betweenDates: _dateRange?.startDate is DateTime &&
-                  _dateRange!.startDate!.isBefore(_dates[index]) &&
-                  _dateRange?.endDate is DateTime &&
-                  _dateRange!.endDate!.isAfter(_dates[index]),
-              showWeekdays: widget.showWeekdays,
-              weekdaysNameTextStyle: widget.weekdaysNameTextStyle,
-              weekendDaysTextStyle: widget.weekendDaysTextStyle,
-              weekendDaysNameTextStyle: widget.weekendDaysNameTextStyle,
-              currentDateTextStyle: widget.currentDateTextStyle,
-              futureDatesTextStyle: widget.futureDatesTextStyle,
-              dayNumberTextStyle: widget.dayNumberTextStyle,
-              previousMonthDayNumberTextStyle:
-                  widget.previousMonthDayNumberTextStyle,
-              nextMonthDayNumberTextStyle: widget.nextMonthDayNumberTextStyle,
-              onDateSelect: _onDateSelect,
-              localeName: widget.localeName,
-              dateSelectionType: widget.dateSelectionType,
-              selectedSingleDate: _selectedSingleDate,
-              selectedDates: _selectedDates,
-              dateRange: _dateRange,
-              showPreviousMonthDays: widget.showPreviousMonthDays,
-              showNextMonthDays: widget.showNextMonthDays,
-              futureDatesAreAvailable: widget.futureDatesAreAvailable,
-              singleSelectionDecoration: widget.singleSelectionDecoration,
-              rangeSelectionDecoration: widget.rangeSelectionDecoration,
-              daysRowHeight: widget.daysRowHeight,
+            Padding(
+              padding: widget.monthViewPadding,
+              child: SizedBox(
+                height: widget.monthViewHeight,
+                width: widget.monthViewWidth,
+                child: DaysViewLeafRenderObjectWidget(
+                  daysCount: _dates[index]
+                      .copyWith(
+                        month: _dates[index].month + 1,
+                        day: 0,
+                      )
+                      .day,
+                  startWeekday: _dates[index].weekday,
+                  viewDate: _dates[index],
+                  betweenDates: _dateRange?.startDate is DateTime &&
+                      _dateRange!.startDate!.isBefore(_dates[index]) &&
+                      _dateRange?.endDate is DateTime &&
+                      _dateRange!.endDate!.isAfter(_dates[index]),
+                  showWeekdays: widget.showWeekdays,
+                  weekdaysNameTextStyle: widget.weekdaysNameTextStyle,
+                  weekendDaysNumberTextStyle: widget.weekendDaysTextStyle,
+                  weekendDaysNameTextStyle: widget.weekendDaysNameTextStyle,
+                  currentDateTextStyle: widget.currentDateTextStyle,
+                  futureDatesTextStyle: widget.futureDatesTextStyle,
+                  dayNumberTextStyle: widget.dayNumberTextStyle,
+                  previousMonthDayNumberTextStyle:
+                      widget.previousMonthDayNumberTextStyle,
+                  nextMonthDayNumberTextStyle:
+                      widget.nextMonthDayNumberTextStyle,
+                  onDateSelect: _onDateSelect,
+                  localeName: widget.localeName,
+                  dateSelectionType: widget.dateSelectionType,
+                  selectedSingleDate: _selectedSingleDate,
+                  selectedDates: _selectedDates,
+                  dateRange: _dateRange,
+                  showPreviousMonthDays: widget.showPreviousMonthDays,
+                  showNextMonthDays: widget.showNextMonthDays,
+                  futureDatesAreAvailable: widget.futureDatesAreAvailable,
+                  singleSelectionDecoration: widget.singleSelectionDecoration,
+                  rangeSelectionDecoration: widget.rangeSelectionDecoration,
+                  daysRowHeight: widget.daysRowHeight,
+                ),
+              ),
             ),
           ],
         ),

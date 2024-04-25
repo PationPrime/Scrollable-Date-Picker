@@ -4,7 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:scrollable_date_picker/src/constants/constants.dart';
-import 'package:scrollable_date_picker/src/extensions/box_shape_ext.dart';
+import 'package:scrollable_date_picker/src/extensions/extensions.dart';
 import 'package:scrollable_date_picker/src/models/models.dart';
 
 import '../enums/enums.dart';
@@ -19,13 +19,13 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
   final bool betweenDates;
   final bool showWeekdays;
   final TextStyle? weekdaysNameTextStyle;
-  final TextStyle weekendDaysTextStyle;
-  final TextStyle weekendDaysNameTextStyle;
-  final TextStyle currentDateTextStyle;
-  final TextStyle futureDatesTextStyle;
+  final TextStyle? weekendDaysNumberTextStyle;
+  final TextStyle? weekendDaysNameTextStyle;
+  final TextStyle? currentDateTextStyle;
+  final TextStyle? futureDatesTextStyle;
   final TextStyle? dayNumberTextStyle;
-  final TextStyle? previousMonthDayNumberTextStyle;
-  final TextStyle? nextMonthDayNumberTextStyle;
+  final TextStyle previousMonthDayNumberTextStyle;
+  final TextStyle nextMonthDayNumberTextStyle;
   final Function(DateTime?)? onDateSelect;
   final String? localeName;
   final DateSelectionType dateSelectionType;
@@ -47,13 +47,13 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
     this.betweenDates = false,
     this.showWeekdays = true,
     this.weekdaysNameTextStyle,
-    required this.weekendDaysTextStyle,
-    required this.weekendDaysNameTextStyle,
-    required this.currentDateTextStyle,
-    required this.futureDatesTextStyle,
+    this.weekendDaysNumberTextStyle,
+    this.weekendDaysNameTextStyle,
+    this.currentDateTextStyle,
+    this.futureDatesTextStyle,
     this.dayNumberTextStyle,
-    this.previousMonthDayNumberTextStyle,
-    this.nextMonthDayNumberTextStyle,
+    required this.previousMonthDayNumberTextStyle,
+    required this.nextMonthDayNumberTextStyle,
     this.onDateSelect,
     this.localeName,
     required this.dateSelectionType,
@@ -79,7 +79,7 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
         showWeekdays: showWeekdays,
         dayNumberTextStyle: dayNumberTextStyle,
         weekdaysNameTextStyle: weekdaysNameTextStyle,
-        weekendDaysNumberStyle: weekendDaysTextStyle,
+        weekendDaysNumberStyle: weekendDaysNumberTextStyle,
         weekendDaysNameTextStyle: weekendDaysNameTextStyle,
         currentDateTextStyle: currentDateTextStyle,
         futureDatesTextStyle: futureDatesTextStyle,
@@ -112,7 +112,7 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
         ..showWeekdays = showWeekdays
         ..weekdayTextStyle = weekdaysNameTextStyle
         ..dayNumberTextStyle = dayNumberTextStyle
-        ..weekendDaysTextStyle = weekendDaysTextStyle
+        ..weekendDaysTextStyle = weekendDaysNumberTextStyle
         ..weekendDaysNameTextStyle = weekendDaysNameTextStyle
         ..currentDateTextStyle = currentDateTextStyle
         ..futureDatesTextStyle = futureDatesTextStyle
