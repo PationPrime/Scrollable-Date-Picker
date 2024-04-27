@@ -10,7 +10,7 @@ import 'package:scrollable_date_picker/src/models/models.dart';
 import '../enums/enums.dart';
 
 part 'days_view_render_box.dart';
-part 'header.dart';
+part 'month_view_header.dart';
 
 class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
   final int daysCount;

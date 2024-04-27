@@ -6,125 +6,125 @@ import 'package:scrollable_date_picker/src/rendering/rendering.dart';
 import 'package:super_sliver_list/super_sliver_list.dart';
 import 'typedefs/typedefs.dart';
 
-/// Widget which displays list of dates between [minDate] and [maxDate]
+/// Widget which displays selected dates.
 class ScrollableDatePicker extends StatefulWidget {
-  /// The date that is displayed first on the screen
+  /// The date that is displayed first on the screen.
   final DateTime? initialDate;
 
-  /// Minimum available date
+  /// Minimum available date.
   final DateTime minDate;
 
-  /// Maximum available date
+  /// Maximum available date.
   final DateTime maxDate;
 
-  /// Flag to controll weekday names dislpay
+  /// Flag to controll weekday names dislpay.
   final bool showWeekdays;
 
-  /// Flag to controll weekday names repeat
+  /// Flag to controll weekday names repeat.
   final bool repeatWeekdayNames;
 
-  /// Flag to controll month title display
+  /// Flag to controll month title display.
   final bool showHeaderTitle;
 
-  /// Weekday name text style
+  /// Weekday name text style.
   final TextStyle? weekdaysNameTextStyle;
 
-  /// Weekend day name text style
+  /// Weekend day name text style.
   final TextStyle? weekendDaysNameTextStyle;
 
-  /// Weekend day numbers text style
+  /// Weekend day numbers text style.
   final TextStyle? weekendDaysTextStyle;
 
-  /// Current day [DateTime.now().day] text style
+  /// Current day [DateTime.now().day] text style.
   final TextStyle currentDateTextStyle;
 
-  /// Month day text style
+  /// Month day text style.
   final TextStyle? dayNumberTextStyle;
 
-  /// Month name text style
+  /// Month name text style.
   final TextStyle? headerTextStyle;
 
-  /// Future days (days after [DateTime.now()]) text style
+  /// Future days (days after [DateTime.now()]) text style.
   final TextStyle futureDatesTextStyle;
 
   /// Flag to controll which dates should be displayed.
   /// If value is [true], displayes dates only between [minDate] and [maxDate],
-  /// else displays dates starts from [DateTime(minDate.year, 1, 1)] to [DateTime(maxDate.year, 12, 1)]
+  /// else displays dates starts from [DateTime(minDate.year, 1, 1)] to [DateTime(maxDate.year, 12, 1)].
   final bool showDatesOnlyBetweenMinAndMax;
 
-  /// Month and weekday localization
+  /// Month and weekday localization.
   final String? localeName;
 
-  /// Type of date selection [DateSelectionType.singleDate], [DateSelectionType.multipleDates], [DateSelectionType.dateRange]
+  /// Type of date selection [DateSelectionType.singleDate], [DateSelectionType.multipleDates], [DateSelectionType.dateRange].
   final DateSelectionType dateSelectionType;
 
-  /// Date selected with [DateSelectionType.singleDate] selection type
+  /// Date selected with [DateSelectionType.singleDate] selection type.
   final DateTime? selectedSingleDate;
 
-  /// Dates selected with [DateSelectionType.multipleDates] selection type
+  /// Dates selected with [DateSelectionType.multipleDates] selection type.
   final List<DateTime>? selectedDates;
 
-  /// Date range from [startDate] to [endDate] with [DateSelectionType.dateRange] selection type
+  /// Date range from [startDate] to [endDate] with [DateSelectionType.dateRange] selection type.
   final DateRangeModel? dateRange;
 
-  /// Date selection callback
+  /// Date selection callback.
   final Function(
     DateTime?,
     List<DateTime>?,
     DateRangeModel?,
   )? onDateSelect;
 
-  /// Scroll controller
+  /// Scroll controller.
   final ScrollController? scrollController;
 
-  /// Scroll direction. Platform specific physics by default
+  /// Scroll direction. Platform specific physics by default.
   final ScrollPhysics? scrollPhysics;
 
   ///If non-null, forces the children to have the given extent in the scroll  direction.
   final double? itemExtent;
 
-  /// Value to format date inside month title
+  /// Value to format date inside month title.
   final DateFormat? headerDateFormat;
 
-  /// Flag to controll interaction with dates after [DateTime.now()]
+  /// Flag to controll interaction with dates after [DateTime.now()].
   final bool futureDatesAreAvailable;
 
   /// [DateSelectionType.singleDate] and [DateSelectionType.multipleDates]
-  /// decoration configuration
+  /// decoration configuration.
   final SingleSelectionDecoration singleSelectionDecoration;
 
-  /// [DateSelectionType.dateRange] decoration configuration
+  /// [DateSelectionType.dateRange] decoration configuration.
   final RangeSelectionDecoration rangeSelectionDecoration;
 
   /// Days row height.
-  /// Used to controll height of each week row in month view
+  /// Used to controll height of each week row in month view.
   final double daysRowHeight;
 
-  /// Visual decoration for month title
+  /// Visual decoration for month title.
   final BoxDecoration? headerDecoration;
 
-  /// typedef function used for title customization
+  /// typedef function used for title customization.
   final HeaderBuilder? headerBuilder;
 
-  /// Title padding
+  /// Title padding.
   final EdgeInsets headerPadding;
 
-  /// ListView padding
+  /// ListView padding.
   final EdgeInsets datePickerPadding;
 
-  /// Month view padding
+  /// Month view padding.
   final EdgeInsets monthViewPadding;
 
-  /// Month view height
+  /// Month view height.
   final double? monthViewHeight;
 
-  /// Month view width
+  /// Month view width.
   final double? monthViewWidth;
 
-  /// Header selection color
+  /// Header selection color.
   final Color headerColor;
 
-  /// Flag to controll scrolling to initial date time
+  /// Flag to controll scrolling to initial date time.
   final bool scrollToInitialDate;
 
   ScrollableDatePicker({
@@ -188,10 +188,15 @@ class ScrollableDatePicker extends StatefulWidget {
     this.monthViewWidth,
     this.headerColor = const Color(0xFF3FB8AF),
     this.scrollToInitialDate = true,
-  })  : assert(
+  })  :
+
+        /// [minDate] and [maxDate] assertion
+        assert(
           minDate.isBefore(maxDate),
           "Minimum date cannot be after maximum date",
         ),
+
+        /// [initialDate] assertion
         assert(
           () {
             if (initialDate is DateTime &&
@@ -205,6 +210,8 @@ class ScrollableDatePicker extends StatefulWidget {
             return true;
           }(),
         ),
+
+        /// [dateSelectionType] assertion
         assert(() {
           final condition = switch (dateSelectionType) {
             DateSelectionType.singleDate =>
@@ -233,6 +240,8 @@ class ScrollableDatePicker extends StatefulWidget {
 
           return true;
         }()),
+
+        /// [dateRange] assertion
         assert(
           () {
             if (dateRange is DateRangeModel &&
@@ -248,11 +257,8 @@ class ScrollableDatePicker extends StatefulWidget {
             return true;
           }(),
         ),
-        assert(
-          () {
-            return true;
-          }(),
-        ),
+
+        /// [futureDatesAreAvailable] assertion
         assert(() {
           if (futureDatesAreAvailable) {
             return true;
@@ -299,29 +305,29 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
   /// [ScrollController] allows to control [SuperListView] scrolling.
   late final ScrollController _scrollController;
 
-  /// Dislpayed dates
+  /// Dislpayed dates.
   late List<DateTime> _dates;
 
-  /// Count of dislpayed months
+  /// Count of dislpayed months.
   late int _monthCount;
 
-  /// Initial date
+  /// Initial date.
   DateTime? _initialDate;
 
-  /// Date selected in [DateSelectionType.singleDate] mode
+  /// Date selected in [DateSelectionType.singleDate] mode.
   DateTime? _selectedSingleDate;
 
-  /// Date selected in [DateSelectionType.dateRange] mode
+  /// Date selected in [DateSelectionType.dateRange] mode.
   DateRangeModel? _dateRange;
 
-  /// Date selected in [DateSelectionType.multipleDates] mode
+  /// Date selected in [DateSelectionType.multipleDates] mode.
   final List<DateTime> _selectedDates = [];
 
-  /// Date time now, but date only
+  /// Date time now, but date only.
   final _dateTimeNow = DateTime.now().dateOnly;
 
   /// On date select method.
-  /// Calls a date selection method depending on [DateSelectionType]
+  /// Calls a date selection method depending on [DateSelectionType].
   void _onDateSelect(DateTime? date) {
     switch (widget.dateSelectionType) {
       case DateSelectionType.singleDate:
@@ -339,13 +345,13 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     }
   }
 
-  /// Select date range from [startDate] to [endDate] method
+  /// Select date range from [startDate] to [endDate] method.
   void _onDateForDateRangeSelect(
     DateTime? date, {
     bool triggerCallback = true,
   }) {
     /// Check if date range has been selected.
-    /// If [true], unselect date range
+    /// If [true], unselect date range.
     if (_dateRange?.startDate is DateTime && _dateRange?.endDate is DateTime) {
       setState(
         () => _dateRange = null,
@@ -353,7 +359,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     }
 
     /// Check if [startDate] has not been selected.
-    /// If [true], select [startDate]
+    /// If [true], select [startDate].
     if (_dateRange?.startDate is! DateTime) {
       _startDateSelect(
         date,
@@ -361,20 +367,20 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     }
 
     /// Else if [startDate] has been selected,
-    /// but [endDate] not, select [endDate]
+    /// but [endDate] not, select [endDate].
     else if (_dateRange?.endDate is! DateTime) {
       _endDateSelect(
         date,
       );
 
       /// Check if [startDate] is after [endDate].
-      /// If [true], swap dates
+      /// If [true], swap dates.
       if (_dateRange!.endDate!.isBefore(_dateRange!.startDate!)) {
         _swapDatesInDateRange();
       }
     }
 
-    /// If [triggerCallback == true] callback dates
+    /// If [triggerCallback == true] callback dates.
     if (triggerCallback) widget.onDateSelect?.call(null, null, _dateRange);
   }
 
@@ -394,7 +400,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     );
   }
 
-  /// Swap dates method
+  /// Swap dates method.
   void _swapDatesInDateRange() {
     final firstDate = _dateRange!.endDate;
     final lastDate = _dateRange!.startDate;
@@ -403,7 +409,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     _endDateSelect(lastDate);
   }
 
-  /// Select single date method
+  /// Select single date method.
   void _singleDateSelect(
     DateTime? date, {
     bool triggerCallback = true,
@@ -417,7 +423,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     }
   }
 
-  /// Select [startDate] for [_dateRange] method
+  /// Select [startDate] for [_dateRange] method.
   void _startDateSelect(
     DateTime? date,
   ) =>
@@ -427,20 +433,20 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
         ),
       );
 
-  /// Select [endDate] for [_dateRange] method
+  /// Select [endDate] for [_dateRange] method.
   void _endDateSelect(DateTime? date) => setState(
         () => _dateRange = _dateRange?.copyWith(
           endDate: date,
         ),
       );
 
-  /// Add each single date to [_selectedDates] list method
+  /// Add each single date to [_selectedDates] list method.
   void _addSelectedDate(
     DateTime date, {
     bool triggerCallback = true,
   }) {
     /// Check if [_selectedDates] already constains date.
-    /// If [true] remove date, else add it
+    /// If [true] remove date, else add it.
     setState(
       () => _selectedDates.contains(date)
           ? _selectedDates.remove(date)
@@ -451,7 +457,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
       return;
     }
 
-    /// If [triggerCallback == true] callback dates
+    /// If [triggerCallback == true] callback dates.
     widget.onDateSelect?.call(
       null,
       _selectedDates,
@@ -459,7 +465,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     );
   }
 
-  /// Check whether any date of the month has been selected method
+  /// Check whether any date of the month has been selected method.
   bool anyDateInMonthSelected(DateTime date) =>
       widget.dateSelectionType.isDateRange &&
           _dateRange is DateRangeModel &&
@@ -474,7 +480,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
       widget.dateSelectionType.isSingleDate &&
           _selectedSingleDate?.copyWith(day: date.day) == date;
 
-  /// On header tap callback method
+  /// On header tap callback method.
   void _onHeaderTap(DateTime date) {
     date = date.dateOnly;
 
@@ -533,12 +539,12 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     }
   }
 
-  /// Compute months count method
+  /// Compute months count method.
   void _cumputeMonthsCount() {
     _monthCount = _getMonthDifference(widget.minDate, widget.maxDate);
   }
 
-  /// Get difference of minDate and maxDate in months method
+  /// Get difference of minDate and maxDate in months method.
   int _getMonthDifference(DateTime from, DateTime to) {
     int yearDifference = to.year - from.year;
     int monthDifference = max(to.month - from.month, 0);
@@ -552,7 +558,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     return difference;
   }
 
-  /// Initialize dates method
+  /// Dates initialization method.
   void _initDates() {
     _cumputeMonthsCount();
 
@@ -577,7 +583,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     _initialDate = widget.initialDate?.dateOnly;
   }
 
-  /// Generate displayable dates method
+  /// Displayable dates generation method.
   void _generateDates() {
     _dates = [];
 
@@ -598,11 +604,13 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     }
   }
 
+  /// Scroll controller initialization method.
   void _initScrollController() {
     _scrollController = widget.scrollController ?? ScrollController();
     _listController = ListController();
   }
 
+  /// [_dates] filling method.
   void _fillSelectedDates(
     List<DateTime> dates, {
     bool triggerCallback = true,
@@ -615,7 +623,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     }
   }
 
-  /// Init method
+  /// Init method.
   void _init() => setState(
         () {
           _initDates();
@@ -624,7 +632,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
         },
       );
 
-  /// Scroll to [_initialDate] method
+  /// Scroll to [_initialDate] method.
   void _scrollToInitialDate() {
     if (_initialDate is! DateTime) {
       return;
@@ -641,16 +649,16 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     );
   }
 
-  /// Clear [_selectedSingleDate] method
+  /// Clear [_selectedSingleDate] method.
   void _clearSingleDate() => _selectedSingleDate = null;
 
-  /// Clear [_dateRange] method
+  /// Clear [_dateRange] method.
   void _clearDateRange() => _dateRange = null;
 
-  /// Clear [_selectedDates] method
+  /// Clear [_selectedDates] method.
   void _clearSelectedDates() => _selectedDates.clear();
 
-  /// Clear [_selectedSingleDate], [_selectedDates], [_dateRange] method
+  /// Clear [_selectedSingleDate], [_selectedDates], [_dateRange] method.
   void _clearDates() {
     _clearSingleDate();
     _clearDateRange();
@@ -667,6 +675,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
     _init();
   }
 
+  /// Сheck the equivalence of lists of dates method.
   bool _selectedDatesEqual(
     List<DateTime>? a,
     List<DateTime>? b,
@@ -760,7 +769,7 @@ class _ScrollableDatePickerState extends State<ScrollableDatePicker> {
                             ? 0
                             : widget.headerPadding.bottom,
                       ),
-                      child: Header(
+                      child: MonthViewHeader(
                         headerColor: anyDateInMonthSelected(_dates[index])
                             ? widget.headerColor
                             : null,

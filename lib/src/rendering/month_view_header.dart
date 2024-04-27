@@ -1,6 +1,6 @@
 part of 'days_view_leaf_render_object_widget.dart';
 
-class Header extends StatelessWidget {
+class MonthViewHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onTap;
   final TextStyle? textStyle;
@@ -8,7 +8,7 @@ class Header extends StatelessWidget {
   final Color? headerColor;
   final bool disabled;
 
-  const Header({
+  const MonthViewHeader({
     super.key,
     required this.title,
     this.onTap,
