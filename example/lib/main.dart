@@ -4,7 +4,6 @@ import 'package:example/action_button.dart';
 import 'package:example/scrollable_date_picker_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:scrollable_date_picker/scrollable_date_picker.dart';
-import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   await initializeDateFormatting();
@@ -26,40 +25,58 @@ class _ScrollableDatePickerAppState extends State<ScrollableDatePickerApp> {
         title: 'Scrollable Date Picker',
         home: Builder(
             builder: (context) => Scaffold(
-                  backgroundColor: Colors.blueGrey,
+                  backgroundColor: Colors.grey[800],
                   body: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ActionButton(
-                          title: "Single date picker",
-                          color: Colors.purpleAccent,
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const ScrollableDatePickerScreen(
-                                selectionType: DateSelectionType.singleDate,
+                        SizedBox(
+                          width: 250,
+                          child: ActionButton(
+                            title: "Single date picker",
+                            color: Colors.red,
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const ScrollableDatePickerScreen(
+                                  selectionType: DateSelectionType.singleDate,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                        ActionButton(
-                          title: "Multiple dates picker",
-                          color: Colors.blueAccent,
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const ScrollableDatePickerScreen(
-                                selectionType: DateSelectionType.multipleDates,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 15,
+                          ),
+                          child: SizedBox(
+                            width: 250,
+                            child: ActionButton(
+                              title: "Multiple dates picker",
+                              color: Colors.green,
+                              onTap: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const ScrollableDatePickerScreen(
+                                    selectionType:
+                                        DateSelectionType.multipleDates,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                        ActionButton(
-                          title: "Date range picker",
-                          color: Colors.tealAccent,
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const ScrollableDatePickerScreen(
-                                selectionType: DateSelectionType.dateRange,
+                        SizedBox(
+                          width: 250,
+                          child: ActionButton(
+                            title: "Date range picker",
+                            color: Colors.blue,
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const ScrollableDatePickerScreen(
+                                  selectionType: DateSelectionType.dateRange,
+                                ),
                               ),
                             ),
                           ),

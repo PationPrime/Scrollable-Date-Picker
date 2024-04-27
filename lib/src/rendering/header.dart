@@ -5,6 +5,8 @@ class Header extends StatelessWidget {
   final VoidCallback? onTap;
   final TextStyle? textStyle;
   final BoxDecoration? headerDecoration;
+  final Color? headerColor;
+  final bool disabled;
 
   const Header({
     super.key,
@@ -12,6 +14,8 @@ class Header extends StatelessWidget {
     this.onTap,
     this.textStyle,
     this.headerDecoration,
+    this.headerColor,
+    this.disabled = false,
   });
 
   @override
@@ -24,15 +28,15 @@ class Header extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
             decoration: headerDecoration ??
                 BoxDecoration(
-                  color: Colors.white10,
+                  color: headerColor ?? Colors.white10,
                   borderRadius: BorderRadius.circular(100),
                 ),
             child: Text(
               title,
               style: textStyle ??
-                  const TextStyle(
+                  TextStyle(
                     fontSize: 16,
-                    color: Colors.white,
+                    color: disabled ? Colors.grey[500] : Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
             ),

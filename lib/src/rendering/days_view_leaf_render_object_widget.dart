@@ -21,19 +21,15 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
   final TextStyle? weekdaysNameTextStyle;
   final TextStyle? weekendDaysNumberTextStyle;
   final TextStyle? weekendDaysNameTextStyle;
-  final TextStyle? currentDateTextStyle;
+  final TextStyle currentDateTextStyle;
   final TextStyle? futureDatesTextStyle;
   final TextStyle? dayNumberTextStyle;
-  final TextStyle previousMonthDayNumberTextStyle;
-  final TextStyle nextMonthDayNumberTextStyle;
   final Function(DateTime?)? onDateSelect;
   final String? localeName;
   final DateSelectionType dateSelectionType;
   final DateTime? selectedSingleDate;
   final List<DateTime> selectedDates;
   final DateRangeModel? dateRange;
-  final bool showPreviousMonthDays;
-  final bool showNextMonthDays;
   final bool futureDatesAreAvailable;
   final SingleSelectionDecoration singleSelectionDecoration;
   final RangeSelectionDecoration rangeSelectionDecoration;
@@ -49,19 +45,15 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
     this.weekdaysNameTextStyle,
     this.weekendDaysNumberTextStyle,
     this.weekendDaysNameTextStyle,
-    this.currentDateTextStyle,
+    required this.currentDateTextStyle,
     this.futureDatesTextStyle,
     this.dayNumberTextStyle,
-    required this.previousMonthDayNumberTextStyle,
-    required this.nextMonthDayNumberTextStyle,
     this.onDateSelect,
     this.localeName,
     required this.dateSelectionType,
     this.selectedSingleDate,
     required this.selectedDates,
     this.dateRange,
-    required this.showPreviousMonthDays,
-    required this.showNextMonthDays,
     required this.futureDatesAreAvailable,
     required this.singleSelectionDecoration,
     required this.rangeSelectionDecoration,
@@ -83,16 +75,12 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
         weekendDaysNameTextStyle: weekendDaysNameTextStyle,
         currentDateTextStyle: currentDateTextStyle,
         futureDatesTextStyle: futureDatesTextStyle,
-        previousMonthDayNumberTextStyle: previousMonthDayNumberTextStyle,
-        nextMonthDayNumberTextStyle: nextMonthDayNumberTextStyle,
         onDateSelect: onDateSelect,
         localeName: localeName,
         dateSelectionType: dateSelectionType,
         selectedSingleDate: selectedSingleDate,
         selectedDates: selectedDates,
         dateRange: dateRange,
-        showPreviousMonthDays: showPreviousMonthDays,
-        showNextMonthDays: showNextMonthDays,
         futureDatesAreAvailable: futureDatesAreAvailable,
         singleSelectionDecoration: singleSelectionDecoration,
         rangeSelectionDecoration: rangeSelectionDecoration,
@@ -116,16 +104,12 @@ class DaysViewLeafRenderObjectWidget extends LeafRenderObjectWidget {
         ..weekendDaysNameTextStyle = weekendDaysNameTextStyle
         ..currentDateTextStyle = currentDateTextStyle
         ..futureDatesTextStyle = futureDatesTextStyle
-        ..previousMonthDayNumberTextStyle = previousMonthDayNumberTextStyle
-        ..nextMonthDayNumberTextStyle = nextMonthDayNumberTextStyle
         ..onDateSelect = onDateSelect
         ..localeName = localeName
         ..dateSelectionType = dateSelectionType
         ..selectedSingleDate = selectedSingleDate
         ..selectedDates = selectedDates
         ..dateRange = dateRange
-        ..showPreviousMonthDays = showPreviousMonthDays
-        ..showNextMonthDays = showNextMonthDays
         ..futureDatesAreAvailable = futureDatesAreAvailable
         ..singleSelectionDecoration = singleSelectionDecoration
         ..rangeSelectionDecoration = rangeSelectionDecoration

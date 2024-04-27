@@ -30,86 +30,94 @@ class _ScrollableDatePickerScreenState
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-        ),
-        backgroundColor: Colors.blueGrey,
-        body: Stack(
-          children: [
-            SizedBox(
-              child: ScrollableDatePicker(
-                datePickerPadding: const EdgeInsets.fromLTRB(10, 10, 10, 100),
-                minDate: DateTime(DateTime.now().year - 1, 2, 1),
-                maxDate: DateTime.now(),
-                onDateSelect: (
-                  singleDate,
-                  dates,
-                  dateRange,
-                ) {
-                  setState(
-                    () {
-                      _selectedSingleDate = singleDate;
-                      _selectedDates = dates;
-                      _dateRange = dateRange;
-                    },
-                  );
-                },
-                dateSelectionType: widget.selectionType,
-                selectedSingleDate: _selectedSingleDate,
-                selectedDates: _selectedDates,
-                dateRange: _dateRange,
-                showNextMonthDays: true,
-                showPreviousMonthDays: true,
-              ),
-            ),
-            if (_selectedSingleDate is DateTime ||
-                _dateRange is DateRangeModel ||
-                _selectedDates is List<DateTime>)
-              Positioned(
-                bottom: 30,
-                left: 0,
-                right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ActionButton(
-                      color: Colors.redAccent,
-                      title: "Clear",
-                      onTap: () => setState(
-                        () {
-                          _selectedSingleDate = null;
-                          _selectedDates = null;
-                          _dateRange = null;
-                        },
-                      ),
-                    ),
-                    ActionButton(
-                      color: Colors.greenAccent,
-                      title: "Select",
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Column(
-                              children: [
-                                const Text(
-                                  "Selected dates:",
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 20),
-                                Text(
-                                  _selectedDatesText,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
+        backgroundColor: Colors.grey[800],
+        body: SafeArea(
+          child: Stack(
+            children: [
+              SizedBox(
+                child: ScrollableDatePicker(
+                  datePickerPadding: const EdgeInsets.fromLTRB(10, 10, 10, 100),
+                  minDate: DateTime(DateTime.now().year - 2),
+                  maxDate: DateTime.now().copyWith(month: 12),
+                  onDateSelect: (
+                    singleDate,
+                    dates,
+                    dateRange,
+                  ) {
+                    setState(
+                      () {
+                        _selectedSingleDate = singleDate;
+                        _selectedDates = dates;
+                        _dateRange = dateRange;
                       },
-                    ),
+                    );
+                  },
+                  dateSelectionType: widget.selectionType,
+
+                  /// todo: convert to set and back to list
+                  selectedDates: [
+                    DateTime.now(),
+                    DateTime.now().copyWith(day: 27).dateOnly,
+                    DateTime.now().copyWith(day: 7),
                   ],
+                  futureDatesAreAvailable: false,
+                  initialDate: DateTime.now(),
                 ),
-              )
-          ],
+              ),
+              if (_selectedSingleDate is DateTime ||
+                  _dateRange is DateRangeModel ||
+                  _selectedDates is List<DateTime>)
+                Positioned(
+                  bottom: 20,
+                  left: 20,
+                  right: 20,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: ActionButton(
+                          color: Colors.red,
+                          title: "Clear",
+                          onTap: () => setState(
+                            () {
+                              _selectedSingleDate = null;
+                              _selectedDates = null;
+                              _dateRange = null;
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: ActionButton(
+                          color: Colors.green,
+                          title: "Select",
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Column(
+                                  children: [
+                                    const Text(
+                                      "Selected dates:",
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Text(
+                                      _selectedDatesText,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+            ],
+          ),
         ),
       );
 }

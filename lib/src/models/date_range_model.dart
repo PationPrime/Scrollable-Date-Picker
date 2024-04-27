@@ -1,6 +1,7 @@
 library src.models.date_range;
 
 import 'package:flutter/material.dart';
+import 'package:scrollable_date_picker/scrollable_date_picker.dart';
 
 @immutable
 class DateRangeModel {
@@ -25,8 +26,8 @@ class DateRangeModel {
   bool operator ==(Object other) =>
       other is DateRangeModel &&
       other.runtimeType == runtimeType &&
-      other.startDate == startDate &&
-      other.endDate == endDate;
+      other.startDate?.dateOnly == startDate?.dateOnly &&
+      other.endDate?.dateOnly == endDate?.dateOnly;
 
   @override
   int get hashCode => Object.hash(

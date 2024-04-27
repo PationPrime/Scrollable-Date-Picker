@@ -1,9 +1,16 @@
 part of 'days_view_leaf_render_object_widget.dart';
 
 class DaysViewRenderBox extends RenderBox {
+  /// Minimum reserved width.
+  static const _minDesiredWidth = 0.0;
+
+  /// Minimum reserved height.
+  static const _minDesiredHeight = 0.0;
+
+  /// Date now without time.
   final _dateTimeNow = DateTime.now().dateOnly;
 
-  /// view date
+  /// View date.
   late DateTime _viewDate;
   DateTime get viewDate => _viewDate;
 
@@ -13,17 +20,18 @@ class DaysViewRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
-  /// Count of days in month
+  /// Count of days in month.
   late int _daysCount;
   int get daysCount => _daysCount;
 
   set daysCount(int value) {
     if (daysCount == value) return;
     _daysCount = value;
+    markNeedsLayout();
     markNeedsPaint();
   }
 
-  /// First date weekday number (from 1 (Monday) to 7 (Sunday))
+  /// First date weekday number (from 1 (Monday) to 7 (Sunday)).
   late int _startWeekday;
   int get startWeekday => _startWeekday;
 
@@ -33,7 +41,6 @@ class DaysViewRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
-  /// First date weekday number (from 1 (Monday) to 7 (Sunday))
   late bool _betweenDates;
   bool get betweenDates => _betweenDates;
 
@@ -93,10 +100,10 @@ class DaysViewRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
-  TextStyle? _currentDateTextStyle;
-  TextStyle? get currentDateTextStyle => _currentDateTextStyle;
+  late TextStyle _currentDateTextStyle;
+  TextStyle get currentDateTextStyle => _currentDateTextStyle;
 
-  set currentDateTextStyle(TextStyle? style) {
+  set currentDateTextStyle(TextStyle style) {
     if (_currentDateTextStyle == style) return;
     _currentDateTextStyle = style;
     markNeedsPaint();
@@ -129,27 +136,9 @@ class DaysViewRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
-  late TextStyle _previousMonthDayNumberTextStyle;
-  TextStyle get previousMonthDayNumberTextStyle =>
-      _previousMonthDayNumberTextStyle;
-
-  set previousMonthDayNumberTextStyle(TextStyle style) {
-    if (_previousMonthDayNumberTextStyle == style) return;
-    _previousMonthDayNumberTextStyle = style;
-    markNeedsPaint();
-  }
-
-  late TextStyle _nextMonthDayNumberTextStyle;
-  TextStyle get nextMonthDayNumberTextStyle => _nextMonthDayNumberTextStyle;
-
-  set nextMonthDayNumberTextStyle(TextStyle style) {
-    if (_nextMonthDayNumberTextStyle == style) return;
-    _nextMonthDayNumberTextStyle = style;
-    markNeedsPaint();
-  }
-
   late List<DayViewModel> _currentMonthDays;
 
+  /// Generate dates belonging to a month method.
   void _generateCurrentMonthDays() => _currentMonthDays = [
         for (int i = 1; i <= daysCount; i++)
           DayViewModel(
@@ -159,79 +148,28 @@ class DaysViewRenderBox extends RenderBox {
           ),
       ];
 
-  late List<DayViewModel> _previousMonthVisibleDays;
-
-  void _generatePreviousMonthVisibleDays() {
-    final previousMonthVisibleDaysCount = viewDate.weekday - 2;
-
-    if (!showPreviousMonthDays || previousMonthVisibleDaysCount == 0) {
-      _previousMonthVisibleDays = [];
-    }
-
-    _previousMonthVisibleDays = [
-      for (int i = previousMonthVisibleDaysCount; i >= 0; i--)
-        DayViewModel(
-          number: viewDate.copyWith(day: 0).day - i,
-          date: viewDate.copyWith(
-            month: viewDate.month - 1,
-            day: viewDate.copyWith(day: 0).day - i,
-          ),
-          monthViewOwnerDate: viewDate,
-        ),
-    ];
-  }
-
-  late List<DayViewModel> _nextMonthVisibleDays;
-
-  void _generateNextMonthVisibleDays() {
-    final nextMonthVisibleDaysCount = 7 -
-        viewDate
-            .copyWith(
-              month: viewDate.month + 1,
-            )
-            .weekday;
-
-    if (!showNextMonthDays || nextMonthVisibleDaysCount == 0) {
-      _nextMonthVisibleDays = [];
-    }
-
-    _nextMonthVisibleDays = [
-      for (int i = 0; i < nextMonthVisibleDaysCount + 1; i++)
-        DayViewModel(
-          number: viewDate.copyWith(month: viewDate.month + 1).day + i,
-          date: viewDate.copyWith(
-            month: viewDate.month + 1,
-            day: viewDate.copyWith(month: viewDate.month + 1).day + i,
-          ),
-          monthViewOwnerDate: viewDate,
-        )
-    ];
-  }
-
+  /// Gesture recognition.
   late TapGestureRecognizer onTap;
-  late VerticalDragGestureRecognizer onDrag;
 
+  /// Initialize on tap up gesture callback method.
   void _initOnTapUp() => onTap = TapGestureRecognizer()
     ..onTapUp = (
       TapUpDetails tapDownDetails,
     ) =>
         _onTapUp(tapDownDetails);
 
-  void _initDragStart() => onDrag = VerticalDragGestureRecognizer()
-    ..onStart = (
-      DragStartDetails dragStartDetails,
-    ) {};
-
+  /// Find tapped day method.
   DayViewModel? _findTappedDay(TapUpDetails tapDownDetails) {
     try {
       return _currentMonthDays.firstWhere(
         (day) => day.rect?.contains(tapDownDetails.localPosition) ?? false,
       );
-    } catch (e) {
+    } catch (_) {
       return null;
     }
   }
 
+  /// onTapUp implementation.
   void _onTapUp(TapUpDetails tapUpDetails) {
     final tappedDay = _findTappedDay(tapUpDetails);
 
@@ -297,24 +235,6 @@ class DaysViewRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
-  late bool _showPreviousMonthDays;
-  bool get showPreviousMonthDays => _showPreviousMonthDays;
-
-  set showPreviousMonthDays(bool value) {
-    if (_showPreviousMonthDays == value) return;
-    _showPreviousMonthDays = value;
-    markNeedsPaint();
-  }
-
-  late bool _showNextMonthDays;
-  bool get showNextMonthDays => _showNextMonthDays;
-
-  set showNextMonthDays(bool value) {
-    if (_showNextMonthDays == value) return;
-    _showNextMonthDays = value;
-    markNeedsPaint();
-  }
-
   late bool _futureDatesAreAvailable;
   bool get futureDatesAreAvailable => _futureDatesAreAvailable;
 
@@ -333,6 +253,7 @@ class DaysViewRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
+  /// Check if day is inside [dateRange] method.
   bool _dayIsInsideDateRange(DayViewModel day) =>
       dateRange is DateRangeModel &&
           dateRange?.startDate is DateTime &&
@@ -350,31 +271,16 @@ class DaysViewRenderBox extends RenderBox {
       return [];
     }
 
-    if (showPreviousMonthDays) {
-      for (final previousMonthDay in _previousMonthVisibleDays) {
-        if (_dayIsInsideDateRange(previousMonthDay)) {
-          daysInRange.add(previousMonthDay);
-        }
-      }
-    }
-
     for (final day in _currentMonthDays) {
       if (_dayIsInsideDateRange(day)) {
         daysInRange.add(day);
       }
     }
 
-    if (showNextMonthDays) {
-      for (final nextMonthDay in _nextMonthVisibleDays) {
-        if (_dayIsInsideDateRange(nextMonthDay)) {
-          daysInRange.add(nextMonthDay);
-        }
-      }
-    }
-
     return daysInRange.toList();
   }
 
+  /// On date tap callback.
   void _onDateTap(DayViewModel tappedDay) {
     final date = viewDate.copyWith(
       day: tappedDay.number,
@@ -385,9 +291,9 @@ class DaysViewRenderBox extends RenderBox {
     _onDateSelect?.call(date);
   }
 
+  /// Gesture detection initialization method.
   void _initGestures() {
     _initOnTapUp();
-    _initDragStart();
   }
 
   DaysViewRenderBox({
@@ -400,18 +306,14 @@ class DaysViewRenderBox extends RenderBox {
     TextStyle? weekdaysNameTextStyle,
     TextStyle? weekendDaysNumberStyle,
     TextStyle? weekendDaysNameTextStyle,
-    TextStyle? currentDateTextStyle,
+    required TextStyle currentDateTextStyle,
     TextStyle? futureDatesTextStyle,
-    required TextStyle previousMonthDayNumberTextStyle,
-    required TextStyle nextMonthDayNumberTextStyle,
     String? localeName,
     required DateSelectionType dateSelectionType,
     DateTime? selectedSingleDate,
     required List<DateTime> selectedDates,
     DateRangeModel? dateRange,
     void Function(DateTime?)? onDateSelect,
-    required bool showPreviousMonthDays,
-    required bool showNextMonthDays,
     required bool futureDatesAreAvailable,
     required SingleSelectionDecoration singleSelectionDecoration,
     required RangeSelectionDecoration rangeSelectionDecoration,
@@ -427,23 +329,17 @@ class DaysViewRenderBox extends RenderBox {
         _weekendDaysNameTextStyle = weekendDaysNameTextStyle,
         _currentDateTextStyle = currentDateTextStyle,
         _futureDatesTextStyle = futureDatesTextStyle,
-        _previousMonthDayNumberTextStyle = previousMonthDayNumberTextStyle,
-        _nextMonthDayNumberTextStyle = nextMonthDayNumberTextStyle,
         _localeName = localeName,
         _dateSelectionType = dateSelectionType,
         _selectedSingleDate = selectedSingleDate,
         _selectedDates = selectedDates,
         _dateRange = dateRange,
         _onDateSelect = onDateSelect,
-        _showPreviousMonthDays = showPreviousMonthDays,
-        _showNextMonthDays = showNextMonthDays,
         _futureDatesAreAvailable = futureDatesAreAvailable,
         _singleSelectionDecoration = singleSelectionDecoration,
         _rangeSelectionDecoration = rangeSelectionDecoration,
         _daysRowHeight = daysRowHeight {
     _generateCurrentMonthDays();
-    _generatePreviousMonthVisibleDays();
-    _generateNextMonthVisibleDays();
     _initGestures();
   }
 
@@ -453,35 +349,19 @@ class DaysViewRenderBox extends RenderBox {
   @override
   bool hitTestSelf(Offset position) => true;
 
-  bool _isPointerMoving = false;
-  bool get isPointerMoving => _isPointerMoving;
-
-  set isPointerMoving(bool value) {
-    if (_isPointerMoving == value) return;
-    _isPointerMoving = value;
-  }
-
   @override
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
     assert(debugHandleEvent(event, entry));
 
     if (event is PointerDownEvent) {
-      // isPointerMoving = false;
+      /// Pointer register.
       onTap.addPointer(event);
-    }
-
-    if (event is PointerMoveEvent) {
-      // isPointerMoving = true;
-    }
-
-    if (event is PointerUpEvent) {
-      // onTap.handlePrimaryPointer(event);
     }
   }
 
-  static const _minDesiredWidth = 0.0;
-  static const _minDesiredHeight = 0.0;
-
+  /// Getter, which returns displaying rows count.
+  /// If [showWeekdays] == true, add 1 to rows count,
+  /// which reserved to paint weekday names.
   int get _rowsCount =>
       ((daysCount + startWeekday - 1) / 7).ceil() + (showWeekdays ? 1 : 0);
 
@@ -491,6 +371,7 @@ class DaysViewRenderBox extends RenderBox {
 
   double get _desiredHeight => _rowsCount * daysRowHeight;
 
+  /// Method, which returns instance of [TextPainter].
   TextPainter _dayNumberPainer(
     int number, {
     TextStyle? textStyle,
@@ -504,6 +385,12 @@ class DaysViewRenderBox extends RenderBox {
         textDirection: TextDirection.ltr,
       );
 
+  /// Method, which returns instance of [TextStyle] depends on:
+  /// 1. [SelectionDecoration] configuration;
+  /// 2. Is date selected;
+  /// 3. Is date current date;
+  /// 4. Future dates available [futureDatesAreAvailable] flag;
+  /// 5. Is date weekend date;
   TextStyle? _dayNumberPainterTextStyle(
     DayViewModel day,
   ) {
@@ -519,10 +406,10 @@ class DaysViewRenderBox extends RenderBox {
       return decoration.selectedDateTextStyle;
     } else if (day.date == _dateTimeNow) {
       return currentDateTextStyle;
-    } else if (day.date?.weekday == 6 || day.date?.weekday == 7) {
-      return weekendDaysTextStyle;
     } else if (!futureDatesAreAvailable && day.date!.isAfter(_dateTimeNow)) {
       return futureDatesTextStyle;
+    } else if (day.date?.weekday == 6 || day.date?.weekday == 7) {
+      return weekendDaysTextStyle;
     }
 
     return dayNumberTextStyle;
@@ -536,6 +423,8 @@ class DaysViewRenderBox extends RenderBox {
     return constraints.constrain(desiredSize);
   }
 
+  /// Days layout method.
+  /// Mainly Needs to compute day number and day rect positions.
   void _layoutDays(
     Offset position,
     double dxStep,
@@ -591,59 +480,6 @@ class DaysViewRenderBox extends RenderBox {
     }
   }
 
-  void _layoutPreviousMonthDays() {
-    if (!showPreviousMonthDays || _previousMonthVisibleDays.isEmpty) {
-      return;
-    }
-
-    final dayStepDX = _dayCellWidth;
-    final dayStepDY = _rowHeight;
-
-    final initialDX = dayStepDX / 2;
-    final initialDY = dayStepDY / 2 + (showWeekdays ? dayStepDY : 0);
-
-    Offset position = Offset(
-      initialDX,
-      initialDY,
-    );
-
-    _layoutDays(
-      position,
-      dayStepDX,
-      dayStepDY,
-      _previousMonthVisibleDays,
-    );
-  }
-
-  void _layoutNextMonthDays() {
-    if (!showNextMonthDays || _nextMonthVisibleDays.isEmpty) {
-      return;
-    }
-
-    final dayStepDX = _dayCellWidth;
-    final dayStepDY = _rowHeight;
-
-    final lastdayWeekday =
-        viewDate.copyWith(month: viewDate.month + 1, day: 0).weekday;
-
-    final initialDX = lastdayWeekday * dayStepDX + dayStepDX / 2;
-    final initialDY =
-        _rowHeight * _rowsCount - (showWeekdays ? _rowHeight / 2 : 0);
-
-    Offset position = Offset(
-      initialDX,
-      initialDY,
-    );
-
-    _layoutDays(
-      position,
-      dayStepDX,
-      dayStepDY,
-      _nextMonthVisibleDays,
-      updateDYPosition: false,
-    );
-  }
-
   void _layoutCurrentMonthDays() {
     final dayStepDX = _dayCellWidth;
     final dayStepDY = _rowHeight;
@@ -666,9 +502,7 @@ class DaysViewRenderBox extends RenderBox {
   @override
   void performLayout() {
     size = computeDryLayout(constraints);
-    _layoutPreviousMonthDays();
     _layoutCurrentMonthDays();
-    _layoutNextMonthDays();
   }
 
   @override
@@ -680,6 +514,7 @@ class DaysViewRenderBox extends RenderBox {
   @override
   double computeMaxIntrinsicHeight(double width) => _desiredHeight;
 
+  /// Weekdays painting method.
   void _paintWeekdays(Canvas canvas) {
     if (!showWeekdays) {
       return;
@@ -725,6 +560,7 @@ class DaysViewRenderBox extends RenderBox {
     }
   }
 
+  /// Day numbers painting method.
   void _paintDays(
     Canvas canvas,
     List<DayViewModel> days, {
@@ -748,6 +584,7 @@ class DaysViewRenderBox extends RenderBox {
     }
   }
 
+  /// Method, which creates RRect from Rect with decoration (borderRadius).
   RRect _rectToRRect(
     Rect rect,
     SelectionDecoration decoration,
@@ -767,6 +604,7 @@ class DaysViewRenderBox extends RenderBox {
     );
   }
 
+  /// Rectangle single selection drawind method.
   void _drawSingleRectSelection(
     Canvas canvas,
     DayViewModel day, {
@@ -805,6 +643,7 @@ class DaysViewRenderBox extends RenderBox {
     );
   }
 
+  /// Circular single selection drawind method.
   void _drawSingleCircleSelection(
     Canvas canvas,
     Offset center, {
@@ -829,6 +668,7 @@ class DaysViewRenderBox extends RenderBox {
     );
   }
 
+  /// Rectangle single selection painting method.
   void _paintSingleRectSelection(
     Canvas canvas, {
     DateTime? date,
@@ -857,6 +697,7 @@ class DaysViewRenderBox extends RenderBox {
     );
   }
 
+  /// Circular single selection painting method.
   void _paintSingleCircleSelection(
     Canvas canvas, {
     DateTime? date,
@@ -887,6 +728,8 @@ class DaysViewRenderBox extends RenderBox {
     );
   }
 
+  /// Single selection painting method.
+  /// Painting shape depends on decoration.
   void _paintSingleSelection(
     Canvas canvas, {
     DateTime? date,
@@ -909,6 +752,7 @@ class DaysViewRenderBox extends RenderBox {
     }
   }
 
+  /// Range selection painting method.
   void _paintRangeSelection(Canvas canvas) {
     if (dateRange?.startDate is DateTime && dateRange?.endDate is DateTime) {
       _paintSelectionBetweenDateRange(
@@ -937,6 +781,7 @@ class DaysViewRenderBox extends RenderBox {
     );
   }
 
+  /// Strat and end date selection gap painting method.
   Path? _paintStartAndEndDateSelectionGap(
     Canvas canvas,
     DayViewModel day,
@@ -1025,6 +870,10 @@ class DaysViewRenderBox extends RenderBox {
     return null;
   }
 
+  /// Seleciton between date range painting method.
+  /// Includes start and end dates selection painting,
+  /// start and end dates gaps painting,
+  /// selection painting between start and end dates.
   void _paintSelectionBetweenDateRange(Canvas canvas) {
     Path selectionPath = Path();
     Path? gapPath;
@@ -1083,6 +932,7 @@ class DaysViewRenderBox extends RenderBox {
     );
   }
 
+  /// Method, which paints selection for each date in [selectedDates].
   void _paintSelectedDates(Canvas canvas) {
     for (final date in selectedDates) {
       _paintSingleSelection(
@@ -1092,7 +942,8 @@ class DaysViewRenderBox extends RenderBox {
     }
   }
 
-  void _paintStartAndEndDateSelections(Canvas canvas) {
+  /// Method, which paints selection depends on [DateSelectionType].
+  void _paintDatesSelection(Canvas canvas) {
     switch (dateSelectionType) {
       case DateSelectionType.singleDate:
         _paintSingleSelection(canvas);
@@ -1107,27 +958,11 @@ class DaysViewRenderBox extends RenderBox {
   void paint(PaintingContext context, Offset offset) {
     _paintWeekdays(context.canvas);
 
-    _paintStartAndEndDateSelections(context.canvas);
-
-    if (showPreviousMonthDays) {
-      _paintDays(
-        context.canvas,
-        _previousMonthVisibleDays,
-        textStyle: previousMonthDayNumberTextStyle,
-      );
-    }
+    _paintDatesSelection(context.canvas);
 
     _paintDays(
       context.canvas,
       _currentMonthDays,
     );
-
-    if (showNextMonthDays) {
-      _paintDays(
-        context.canvas,
-        _nextMonthVisibleDays,
-        textStyle: nextMonthDayNumberTextStyle,
-      );
-    }
   }
 }
