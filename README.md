@@ -2,7 +2,7 @@
 
 Scrollable Date Picker allows to use single, multiple and range picker.
 
-This package depends on super_sliver_list (https://pub.dev/packages/super_sliver_list) package, primarily to use the "scroll to item" (scroll to initial date) functionality and intl (https://pub.dev/packages/intl) package, primarily to use date formatting functionality.
+This package depends on [super_sliver_list](https://pub.dev/packages/super_sliver_list) package, primarily to use the "scroll to item" (scroll to initial date) functionality and [intl](https://pub.dev/packages/intl) package, primarily to use date formatting functionality.
 
 ## Getting Started
 
