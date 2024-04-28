@@ -1,39 +1,46 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Scrollable Date Picker
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
+Scrollable Date Picker allows to use single, multiple and range picker.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+This package depends on [super_sliver_list] (https://pub.dev/packages/super_sliver_list) package, primarily to use the "scroll to item" (scroll to initial date) functionality and [intl] (https://pub.dev/packages/intl) package, primarily to use date formatting functionality.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+## Getting Started
 
-## Features
+### Instructions
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+1. Open a command line and cd to your projects root folder
+2. In your pubspec, add a package entry to your dependencies (example below)
 
-## Getting started
+### Pubspec
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
+```yaml
+dependencies:
+  scrollable_date_picker: ^1.0.0
 ```
 
-## Additional information
+```dart
+import 'package:scrollable_date_picker/scrollable_date_picker.dart';
+```
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+3. Load the appropriate data by calling initializeDateFormatting() method.
+
+```dart
+Future<void> main() async {
+  await initializeDateFormatting();
+  runApp(const MyApp());
+}
+```
+
+### Usage
+
+Simple usage example
+
+```dart
+ScrollableDatePicker(
+  minDate: DateTime(DateTime.now().year - 2),
+  maxDate: DateTime.now().copyWith(month: 12),
+  onDateSelect: (singleDate, dates, dateRange,) {},
+),
+```
+
+

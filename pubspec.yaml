@@ -1,7 +1,7 @@
 name: scrollable_date_picker
-description: "A new Flutter package project."
-version: 0.1.0
-homepage: none
+description: "Scrollable date picker flutter package."
+version: 1.0.0
+homepage: https://github.com/PationPrime/Scrollable-Date-Picker
 
 environment:
   sdk: '>=3.3.3 <4.0.0'
