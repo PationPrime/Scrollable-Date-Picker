@@ -139,12 +139,8 @@ class _ScrollableDatePickerScreenState
                     );
                   },
                   dateSelectionType: widget.selectionType,
-
-                  /// todo: convert to set and back to list
                   selectedDates: [
                     DateTime.now(),
-                    DateTime.now().copyWith(day: 27).dateOnly,
-                    DateTime.now().copyWith(day: 7),
                   ],
                   futureDatesAreAvailable: false,
                   initialDate: DateTime.now(),
