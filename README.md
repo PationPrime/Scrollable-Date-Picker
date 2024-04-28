@@ -8,8 +8,8 @@ This package depends on [super_sliver_list](https://pub.dev/packages/super_slive
 
 ### Instructions
 
-1. Open a command line and cd to your projects root folder
-2. In your pubspec, add a package entry to your dependencies (example below)
+1. Open a command line and cd to your projects root folder;
+2. In your pubspec, add a package entry to your dependencies (example below);
 
 ### Pubspec
 
