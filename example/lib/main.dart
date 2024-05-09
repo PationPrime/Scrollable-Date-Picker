@@ -139,9 +139,7 @@ class _ScrollableDatePickerScreenState
                     );
                   },
                   dateSelectionType: widget.selectionType,
-                  selectedDates: [
-                    DateTime.now(),
-                  ],
+                  selectedDates:_selectedDates,
                   futureDatesAreAvailable: false,
                   initialDate: DateTime.now(),
                 ),
