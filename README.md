@@ -15,7 +15,7 @@ This package depends on [super_sliver_list](https://pub.dev/packages/super_slive
 
 ```yaml
 dependencies:
-  scrollable_date_picker: ^1.0.0
+  scrollable_date_picker: ^1.0.2
 ```
 
 ```dart
