@@ -1,3 +1,7 @@
+## 1.2.0
+
+- minor: intl package version downgraded from 0.18.1 to 0.19.0;
+
 ## 1.1.0
 
 - minor: intl package version downgraded from 0.19.0 to 0.18.1;
